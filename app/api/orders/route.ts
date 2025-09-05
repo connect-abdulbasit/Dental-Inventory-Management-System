@@ -1,0 +1,98 @@
+import { NextResponse } from "next/server"
+
+const orders = [
+  {
+    id: "ORD-001",
+    product: "Dental Floss (Pack of 50)",
+    quantity: 10,
+    status: "pending",
+    deliveryDate: "2024-01-25",
+    orderDate: "2024-01-18",
+    supplier: "DentalCorp",
+    totalAmount: 125.5,
+    trackingNumber: "DC123456789",
+  },
+  {
+    id: "ORD-002",
+    product: "Disposable Gloves (Box of 100)",
+    quantity: 25,
+    status: "shipped",
+    deliveryDate: "2024-01-22",
+    orderDate: "2024-01-15",
+    supplier: "MedSupply Inc",
+    totalAmount: 487.75,
+    trackingNumber: "MS987654321",
+  },
+  {
+    id: "ORD-003",
+    product: "Anesthetic Cartridges",
+    quantity: 50,
+    status: "delivered",
+    deliveryDate: "2024-01-20",
+    orderDate: "2024-01-12",
+    supplier: "PharmaDental",
+    totalAmount: 892.0,
+    trackingNumber: "PD456789123",
+  },
+  {
+    id: "ORD-004",
+    product: "Composite Filling Material",
+    quantity: 15,
+    status: "pending",
+    deliveryDate: "2024-01-28",
+    orderDate: "2024-01-19",
+    supplier: "DentalCorp",
+    totalAmount: 675.25,
+    trackingNumber: "DC789123456",
+  },
+  {
+    id: "ORD-005",
+    product: "X-Ray Films (Pack of 100)",
+    quantity: 5,
+    status: "shipped",
+    deliveryDate: "2024-01-24",
+    orderDate: "2024-01-16",
+    supplier: "RadiologyPlus",
+    totalAmount: 234.99,
+    trackingNumber: "RP321654987",
+  },
+  {
+    id: "ORD-006",
+    product: "Dental Mirrors (Set of 12)",
+    quantity: 8,
+    status: "delivered",
+    deliveryDate: "2024-01-19",
+    orderDate: "2024-01-10",
+    supplier: "InstrumentCo",
+    totalAmount: 156.8,
+    trackingNumber: "IC654987321",
+  },
+  {
+    id: "ORD-007",
+    product: "Suction Tips (Pack of 200)",
+    quantity: 20,
+    status: "pending",
+    deliveryDate: "2024-01-30",
+    orderDate: "2024-01-20",
+    supplier: "DentalCorp",
+    totalAmount: 298.4,
+    trackingNumber: "DC147258369",
+  },
+  {
+    id: "ORD-008",
+    product: "Fluoride Gel (12 tubes)",
+    quantity: 6,
+    status: "shipped",
+    deliveryDate: "2024-01-26",
+    orderDate: "2024-01-17",
+    supplier: "PharmaDental",
+    totalAmount: 189.75,
+    trackingNumber: "PD963852741",
+  },
+]
+
+export async function GET() {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 300))
+  return NextResponse.json(orders)
+}
