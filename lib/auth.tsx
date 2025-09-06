@@ -8,12 +8,28 @@ interface User {
   id: string
   email: string
   name: string
-  role: "admin" | "member" | "dentist" // Updated role types to be more specific
+  role: "admin" | "member" | "dentist" | "hygienist" | "assistant" | "office_manager" | "owner"
+  clinic?: {
+    clinicName: string
+    clinicType: string
+    address: string
+    city: string
+    state: string
+    zipCode: string
+    country: string
+    phone: string
+    email?: string
+    website?: string
+    licenseNumber?: string
+    establishedYear?: string
+    description?: string
+  }
 }
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
+  signup: (userData: any) => Promise<boolean>
   logout: () => void
   isLoading: boolean
 }
@@ -59,13 +75,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false
   }
 
+  const signup = async (userData: any): Promise<boolean> => {
+    setIsLoading(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    // Create new user account
+    const newUser: User = {
+      id: Date.now().toString(),
+      email: userData.email,
+      name: `${userData.firstName} ${userData.lastName}`,
+      role: userData.role,
+      clinic: userData.clinic
+    }
+
+    setUser(newUser)
+    localStorage.setItem("cavity_user", JSON.stringify(newUser))
+    setIsLoading(false)
+    return true
+  }
+
   const logout = () => {
     setUser(null)
     localStorage.removeItem("cavity_user")
     router.push("/login")
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
@@ -83,7 +120,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!isLoading && !user && pathname !== "/login") {
+    if (!isLoading && !user && pathname !== "/login" && pathname !== "/signup") {
       router.push("/login")
     }
   }, [user, isLoading, router, pathname])
@@ -96,7 +133,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!user && pathname !== "/login") {
+  if (!user && pathname !== "/login" && pathname !== "/signup") {
     return null
   }
 

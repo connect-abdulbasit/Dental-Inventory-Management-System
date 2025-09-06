@@ -81,9 +81,14 @@ export default function LandingPage() {
               </Button>
             </div>
             <nav className="flex items-center space-x-2">
+              <Link href="/signup">
+                <Button variant="outline" className="border-border/40 bg-background/80 backdrop-blur-sm">
+                  Sign Up
+                </Button>
+              </Link>
               <Link href="/login">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
-                  Get Started
+                  Sign In
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -118,7 +123,7 @@ export default function LandingPage() {
         <div className="absolute top-80 left-1/4 w-22 h-22 bg-emerald-400/20 rounded-full blur-3xl animate-blob animation-delay-1500" />
         <div className="absolute top-1/2 right-10 w-26 h-26 bg-rose-400/20 rounded-full blur-2xl animate-blob animation-delay-2500" />
         <div className="absolute bottom-40 left-1/5 w-18 h-18 bg-violet-400/20 rounded-full blur-3xl animate-blob animation-delay-3500" />
-        <div className="absolute top-1/3 left-1/6 w-30 h-30 bg-teal-400/20 rounded-full blur-2xl animate-blob animation-delay-4500" />
+        <div className="absolute top-1/3 left-1/6 w-30 h-30 bg-teal-400/20 rounded-full blur-3xl animate-blob animation-delay-4500" />
         <div className="absolute bottom-10 right-1/3 w-14 h-14 bg-orange-400/20 rounded-full blur-3xl animate-blob animation-delay-5500" />
         <div className="absolute top-2/3 left-2/3 w-24 h-24 bg-lime-400/20 rounded-full blur-2xl animate-blob animation-delay-6500" />
         <div className="absolute top-1/4 right-1/5 w-20 h-20 bg-sky-400/20 rounded-full blur-3xl animate-blob animation-delay-7500" />
@@ -150,9 +155,9 @@ export default function LandingPage() {
               collaboration tools designed for modern dentistry.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Link href="/login">
+              <Link href="/signup">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
-                  Get Started
+                  Get Started Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -212,7 +217,7 @@ export default function LandingPage() {
             Join hundreds of dental practices already using Dentura to streamline their operations and improve patient care.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Link href="/login">
+            <Link href="/signup">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
                 Start Your Free Trial
                 <ArrowRight className="ml-2 h-4 w-4" />
