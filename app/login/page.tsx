@@ -36,9 +36,9 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-            <span className="text-white font-bold text-2xl">C</span>
+            <span className="text-white font-bold text-2xl">D</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome to Cavity</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Welcome to Dentura</h2>
           <p className="mt-2 text-gray-600">Smart Dental Practice Management</p>
         </div>
 
@@ -97,7 +97,7 @@ export default function LoginPage() {
                   <p className="text-sm font-semibold text-blue-800">Admin Access</p>
                 </div>
                 <p className="text-sm text-blue-700">
-                  Use email containing "admin" (e.g., admin@cavity.com) to get admin privileges and access user
+                  Use email containing "admin" (e.g., admin@dentura.com) to get admin privileges and access user
                   management
                 </p>
               </div>
@@ -108,7 +108,7 @@ export default function LoginPage() {
                   <p className="text-sm font-semibold text-gray-800">Regular User</p>
                 </div>
                 <p className="text-sm text-gray-700">
-                  Use any other email (e.g., doctor@cavity.com) for standard user access
+                  Use any other email (e.g., doctor@dentura.com) for standard user access
                 </p>
               </div>
 

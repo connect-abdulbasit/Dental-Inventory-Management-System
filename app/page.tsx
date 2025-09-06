@@ -53,9 +53,9 @@ export default function LandingPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">C</span>
+                <span className="text-white font-bold text-lg">D</span>
               </div>
-              <span className="text-2xl font-bold text-blue-600">Cavity</span>
+              <span className="text-2xl font-bold text-blue-600">Dentura</span>
             </div>
             <Link href="/login">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-0">
@@ -148,7 +148,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Practice?</h2>
           <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Join hundreds of dental practices already using Cavity to streamline their operations and improve patient
+            Join hundreds of dental practices already using Dentura to streamline their operations and improve patient
             care.
           </p>
           <Link href="/login">
@@ -168,11 +168,11 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">C</span>
+              <span className="text-white font-bold">D</span>
             </div>
-            <span className="text-xl font-bold">Cavity</span>
+            <span className="text-xl font-bold">Dentura</span>
           </div>
-          <p className="text-gray-400">© 2024 Cavity. Smart Dental Practice Management Platform.</p>
+          <p className="text-gray-400">© 2024 Dentura. Smart Dental Practice Management Platform.</p>
         </div>
       </footer>
     </div>

@@ -8,7 +8,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Cavity - Smart Dental Inventory & Practice Management",
+  title: "Dentura - Smart Dental Inventory & Practice Management",
   description: "Comprehensive dental practice management system for inventory, appointments, and orders",
   generator: "v0.app",
 }

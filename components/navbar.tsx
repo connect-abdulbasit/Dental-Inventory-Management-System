@@ -30,9 +30,9 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-blue-600 font-bold text-lg">C</span>
+                <span className="text-blue-600 font-bold text-lg">D</span>
               </div>
-              <span className="text-2xl font-bold text-white">Cavity</span>
+              <span className="text-2xl font-bold text-white">Dentura</span>
             </Link>
           </div>
 
