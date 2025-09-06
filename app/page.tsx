@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Shield, Users, Calendar, Package, BarChart3, CheckCircle } from "lucide-react"
+import { ArrowRight, Shield, Users, Calendar, Package, BarChart3, CheckCircle, Star, Zap } from "lucide-react"
 import { useState, useEffect } from "react"
 
 export default function LandingPage() {
@@ -46,133 +46,214 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+    <div className="min-h-screen bg-white relative">
+      {/* Grid Background Pattern - Primary */}
+      <div className="absolute inset-0 grid-pattern-primary bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
+      {/* Grid Background Pattern - Secondary */}
+      <div className="absolute inset-0 grid-pattern-secondary bg-[size:1.5rem_1.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
+      {/* Decorative Blur Circles */}
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob" />
+      <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000" />
+
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-blue-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">D</span>
+      <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <div className="container flex h-14 max-w-screen-2xl items-center">
+          <div className="mr-4 hidden md:flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">D</span>
               </div>
-              <span className="text-2xl font-bold text-blue-600">Dentura</span>
-            </div>
-            <Link href="/login">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-0">
-                Sign In
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              <span className="hidden font-bold sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Dentura
+              </span>
             </Link>
+          </div>
+          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+            <div className="w-full flex-1 md:w-auto md:flex-none">
+              <Button variant="ghost" className="md:hidden">
+                <span className="sr-only">Toggle menu</span>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1.5 3C1.22386 3 1 3.22386 1 3.5C1 3.77614 1.22386 4 1.5 4H13.5C13.7761 4 14 3.77614 14 3.5C14 3.22386 13.7761 3 13.5 3H1.5ZM1 7.5C1 7.22386 1.22386 7 1.5 7H13.5C13.7761 7 14 7.22386 14 7.5C14 7.77614 13.7761 8 13.5 8H1.5C1.22386 8 1 7.77614 1 7.5ZM1 11.5C1 11.2239 1.22386 11 1.5 11H13.5C13.7761 11 14 11.2239 14 11.5C14 11.7761 13.7761 12 13.5 12H1.5C1.22386 12 1 11.7761 1 11.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                </svg>
+              </Button>
+            </div>
+            <nav className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </nav>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-          <div
-            className={`text-center transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-          >
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+        {/* Hero Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 animate-gradient-shift" />
+        
+        {/* Hero Grid Pattern - Primary */}
+        <div className="absolute inset-0 grid-pattern-primary [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+        
+        {/* Hero Grid Pattern - Secondary */}
+        <div className="absolute inset-0 grid-pattern-secondary [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+        
+        {/* Hero Grid Pattern - Fine */}
+        <div className="absolute inset-0 grid-pattern-fine [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+        
+        {/* Hero Decorative Elements */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-40 right-20 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl animate-blob animation-delay-2000" />
+        <div className="absolute top-60 left-1/3 w-28 h-28 bg-purple-400/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute bottom-32 right-1/4 w-20 h-20 bg-pink-400/20 rounded-full blur-2xl animate-blob animation-delay-1000" />
+        <div className="absolute bottom-20 left-1/2 w-36 h-36 bg-cyan-400/20 rounded-full blur-3xl animate-blob animation-delay-3000" />
+        
+        {/* Additional Bubbles */}
+        <div className="absolute top-10 right-1/3 w-16 h-16 bg-indigo-400/20 rounded-full blur-2xl animate-blob animation-delay-500" />
+        <div className="absolute top-80 left-1/4 w-22 h-22 bg-emerald-400/20 rounded-full blur-3xl animate-blob animation-delay-1500" />
+        <div className="absolute top-1/2 right-10 w-26 h-26 bg-rose-400/20 rounded-full blur-2xl animate-blob animation-delay-2500" />
+        <div className="absolute bottom-40 left-1/5 w-18 h-18 bg-violet-400/20 rounded-full blur-3xl animate-blob animation-delay-3500" />
+        <div className="absolute top-1/3 left-1/6 w-30 h-30 bg-teal-400/20 rounded-full blur-2xl animate-blob animation-delay-4500" />
+        <div className="absolute bottom-10 right-1/3 w-14 h-14 bg-orange-400/20 rounded-full blur-3xl animate-blob animation-delay-5500" />
+        <div className="absolute top-2/3 left-2/3 w-24 h-24 bg-lime-400/20 rounded-full blur-2xl animate-blob animation-delay-6500" />
+        <div className="absolute top-1/4 right-1/5 w-20 h-20 bg-sky-400/20 rounded-full blur-3xl animate-blob animation-delay-7500" />
+        <div className="absolute bottom-1/3 right-1/6 w-28 h-28 bg-fuchsia-400/20 rounded-full blur-2xl animate-blob animation-delay-8500" />
+        <div className="absolute top-3/4 left-1/2 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl animate-blob animation-delay-9500" />
+        <div className="absolute top-1/6 left-1/8 w-16 h-16 bg-slate-400/20 rounded-full blur-2xl animate-blob animation-delay-10500" />
+        <div className="absolute bottom-1/4 left-3/4 w-22 h-22 bg-stone-400/20 rounded-full blur-3xl animate-blob animation-delay-11500" />
+        <div className="absolute top-5/6 right-1/8 w-18 h-18 bg-zinc-400/20 rounded-full blur-2xl animate-blob animation-delay-12500" />
+        <div className="absolute top-1/5 right-2/3 w-26 h-26 bg-neutral-400/20 rounded-full blur-3xl animate-blob animation-delay-13500" />
+        <div className="absolute bottom-1/6 left-1/3 w-20 h-20 bg-gray-400/20 rounded-full blur-2xl animate-blob animation-delay-14500" />
+        
+        {/* Floating Particles */}
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-500/30 dark:bg-blue-400/20 rounded-full animate-float" />
+        <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-purple-500/30 dark:bg-purple-400/20 rounded-full animate-float animation-delay-2000" />
+        <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-cyan-500/30 dark:bg-cyan-400/20 rounded-full animate-float animation-delay-4000" />
+        <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 bg-blue-500/20 dark:bg-blue-400/10 rounded-full animate-float animation-delay-1000" />
+        
+        {/* Hero Content */}
+        <div className="relative z-10 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32">
+          <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
+            <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl">
               Smart Dental
-              <span className="block bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">
                 Practice Management
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
               Streamline your dental practice with intelligent inventory management, appointment scheduling, and team
               collaboration tools designed for modern dentistry.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col gap-4 sm:flex-row">
               <Link href="/login">
-                <Button
-                  size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl px-8 py-4 text-lg border-0"
-                >
-                  Get Started Today
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-blue-600 text-blue-700 hover:bg-blue-50 px-8 py-4 text-lg bg-white"
-              >
-                Watch Demo
-              </Button>
+              <Link href="https://github.com/connect-abdulbasit/Dental-Inventory-Management-System" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" variant="outline" className="border-border/40 bg-background/80 backdrop-blur-sm">
+                  <Star className="mr-2 h-4 w-4" />
+                  Star on GitHub
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* Animated Background Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-16 h-16 bg-blue-300 rounded-full opacity-30 animate-bounce"></div>
-        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-blue-400 rounded-full opacity-25 animate-pulse delay-1000"></div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Everything You Need to Manage Your Practice</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Comprehensive tools designed specifically for dental practices to improve efficiency and patient care.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <div
-                  key={feature.title}
-                  className={`bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 ${
-                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-                  }`}
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-6">
-                    <Icon className="w-6 h-6 text-white" />
+      <section className="container space-y-6 py-8 md:py-12 lg:py-24 relative z-10">
+        <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+          <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
+            Everything You Need
+          </h2>
+          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            Comprehensive tools designed specifically for dental practices to improve efficiency and patient care.
+          </p>
+        </div>
+        <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+          {features.map((feature, index) => {
+            const Icon = feature.icon
+            return (
+              <div
+                key={feature.title}
+                className="relative overflow-hidden rounded-lg border bg-background p-2 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
+                    <Icon className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <div className="space-y-2">
+                    <h3 className="font-bold">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-              )
-            })}
-          </div>
+              </div>
+            )
+          })}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Practice?</h2>
-          <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Join hundreds of dental practices already using Dentura to streamline their operations and improve patient
-            care.
+      <section className="container py-8 md:py-12 lg:py-24 relative z-10">
+        <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
+          <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
+            Ready to Transform Your Practice?
+          </h2>
+          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            Join hundreds of dental practices already using Dentura to streamline their operations and improve patient care.
           </p>
-          <Link href="/login">
-            <Button
-              size="lg"
-              className="bg-white text-blue-700 hover:bg-blue-50 shadow-xl px-8 py-4 text-lg font-semibold"
-            >
-              Start Your Free Trial
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Link href="/login">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
+                Start Your Free Trial
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="https://github.com/connect-abdulbasit/Dental-Inventory-Management-System" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" className="border-border/40">
+                <Star className="mr-2 h-4 w-4" />
+                Star on GitHub
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">D</span>
+      <footer className="border-t py-6 md:py-0">
+        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+          <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-xs">D</span>
+              </div>
+              <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+                Built by{" "}
+                <span className="font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Dentura
+                </span>
+                . The source code is available on{" "}
+                <a
+                  href="https://github.com/connect-abdulbasit/Dental-Inventory-Management-System"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium underline underline-offset-4"
+                >
+                  GitHub
+                </a>
+                .
+              </p>
             </div>
-            <span className="text-xl font-bold">Dentura</span>
           </div>
-          <p className="text-gray-400">© 2024 Dentura. Smart Dental Practice Management Platform.</p>
         </div>
       </footer>
     </div>
