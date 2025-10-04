@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { UserPlus, Mail, User, Shield } from "lucide-react"
 
 interface InviteUserModalProps {
   open: boolean
@@ -48,15 +49,27 @@ export function InviteUserModal({ open, onOpenChange, onInvite }: InviteUserModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Invite New User</DialogTitle>
-          <DialogDescription>Send an invitation to a new user to join your dental practice.</DialogDescription>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50">
+              <UserPlus className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl">Invite New User</DialogTitle>
+              <DialogDescription className="text-base">
+                Send an invitation to a new user to join your dental practice.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Email Address
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -64,32 +77,80 @@ export function InviteUserModal({ open, onOpenChange, onInvite }: InviteUserModa
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-11"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name (Optional)</Label>
-              <Input id="name" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Full Name (Optional)
+              </Label>
+              <Input 
+                id="name" 
+                placeholder="Enter full name" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)}
+                className="h-11"
+              />
+              <p className="text-xs text-gray-500">If left empty, we'll use the email prefix</p>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="role">Role</Label>
+            <div className="space-y-2">
+              <Label htmlFor="role" className="text-sm font-medium flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Role & Permissions
+              </Label>
               <Select value={role} onValueChange={setRole}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="member">Member</SelectItem>
-                  <SelectItem value="dentist">Dentist</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="member">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Member</span>
+                      <span className="text-xs text-gray-500">Basic access to inventory and orders</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="dentist">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Dentist</span>
+                      <span className="text-xs text-gray-500">Full access to patient records and appointments</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="admin">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Admin</span>
+                      <span className="text-xs text-gray-500">Complete system access and user management</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-3 pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="flex-1 sm:flex-none"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Sending..." : "Send Invitation"}
+            <Button 
+              type="submit" 
+              disabled={loading || !email.trim()}
+              className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Send Invitation
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>
