@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header"
 import { CalendarView } from "@/components/appointments/calendar-view"
 import { AppointmentModal } from "@/components/appointments/appointment-modal"
 import { Button } from "@/components/ui/button"
-import { Plus, RefreshCw } from "lucide-react"
+import { Plus, RefreshCw, Calendar } from "lucide-react"
 
 interface Appointment {
   id: number
@@ -68,7 +68,11 @@ export default function AppointmentsPage() {
   if (isLoading) {
     return (
       <div>
-        <PageHeader title="Appointments" description="Manage patient appointments and schedules" />
+        <PageHeader 
+          title="Appointments" 
+          description="Manage patient appointments and schedules"
+          icon={<Calendar className="w-6 h-6" />}
+        />
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -78,7 +82,11 @@ export default function AppointmentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Appointments" description="Manage patient appointments and schedules">
+      <PageHeader 
+        title="Appointments" 
+        description="Manage patient appointments and schedules"
+        icon={<Calendar className="w-6 h-6" />}
+      >
         <div className="flex items-center space-x-3">
           <Button variant="outline" onClick={fetchAppointments}>
             <RefreshCw className="h-4 w-4 mr-2" />
