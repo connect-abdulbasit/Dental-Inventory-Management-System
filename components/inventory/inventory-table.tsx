@@ -86,42 +86,55 @@ export function InventoryTable({ items, onRefresh }: InventoryTableProps) {
   }
 
   const getStatusBadge = (status: string) => {
-    return status === "Low" ? <Badge variant="destructive">Low Stock</Badge> : <Badge variant="secondary">OK</Badge>
+    if (status === "Low") {
+      return <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100">Low Stock</Badge>
+    } else if (status === "Out") {
+      return <Badge className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100">Out of Stock</Badge>
+    } else {
+      return <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100">In Stock</Badge>
+    }
   }
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-lg border-0 shadow-sm bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Product Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Threshold</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Supplier</TableHead>
-              <TableHead>Last Updated</TableHead>
-              <TableHead>Actions</TableHead>
+          <TableHeader className="bg-gray-50/50">
+            <TableRow className="border-b border-gray-200">
+              <TableHead className="font-semibold text-gray-700">Product Name</TableHead>
+              <TableHead className="font-semibold text-gray-700">Category</TableHead>
+              <TableHead className="font-semibold text-gray-700">Quantity</TableHead>
+              <TableHead className="font-semibold text-gray-700">Threshold</TableHead>
+              <TableHead className="font-semibold text-gray-700">Status</TableHead>
+              <TableHead className="font-semibold text-gray-700">Supplier</TableHead>
+              <TableHead className="font-semibold text-gray-700">Last Updated</TableHead>
+              <TableHead className="font-semibold text-gray-700">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow key={item.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-100">
                 <TableCell className="font-medium">
-                  <div className="flex items-center space-x-2">
-                    <Package className="h-4 w-4 text-gray-500" />
-                    <span>{item.name}</span>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                      <Package className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <span className="text-gray-900">{item.name}</span>
                   </div>
                 </TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell>{item.threshold}</TableCell>
+                <TableCell className="text-gray-600">{item.category}</TableCell>
+                <TableCell className="text-gray-900 font-semibold">{item.quantity}</TableCell>
+                <TableCell className="text-gray-600">{item.threshold}</TableCell>
                 <TableCell>{getStatusBadge(item.status)}</TableCell>
-                <TableCell>{item.supplier}</TableCell>
-                <TableCell>{item.lastUpdated}</TableCell>
+                <TableCell className="text-gray-600">{item.supplier}</TableCell>
+                <TableCell className="text-gray-500 text-sm">{item.lastUpdated}</TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm" onClick={() => openUpdateDialog(item)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => openUpdateDialog(item)}
+                    className="hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors"
+                  >
                     <Edit className="h-4 w-4 mr-1" />
                     Update
                   </Button>

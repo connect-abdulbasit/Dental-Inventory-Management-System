@@ -24,7 +24,7 @@ export function Navbar() {
   const allNavigation = user?.role === "admin" ? [...navigation, ...adminNavigation] : navigation
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg border-b border-blue-800">
+    <nav className="bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg border-b border-purple-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">

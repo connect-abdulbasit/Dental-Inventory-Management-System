@@ -686,15 +686,43 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-            <span className="text-white font-bold text-2xl">D</span>
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Grid Background Pattern - Primary */}
+      <div className="absolute inset-0 grid-pattern-primary bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
+      {/* Grid Background Pattern - Secondary */}
+      <div className="absolute inset-0 grid-pattern-secondary bg-[size:1.5rem_1.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
+      {/* Hero Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 animate-gradient-shift" />
+      
+      {/* Decorative Blur Circles */}
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob" />
+      <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000" />
+      
+      {/* Additional Bubbles */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl animate-blob" />
+      <div className="absolute top-40 right-20 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl animate-blob animation-delay-2000" />
+      <div className="absolute top-60 left-1/3 w-28 h-28 bg-purple-400/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+      <div className="absolute bottom-32 right-1/4 w-20 h-20 bg-pink-400/20 rounded-full blur-2xl animate-blob animation-delay-1000" />
+      <div className="absolute bottom-20 left-1/2 w-36 h-36 bg-cyan-400/20 rounded-full blur-3xl animate-blob animation-delay-3000" />
+      
+      {/* Floating Particles */}
+      <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-500/30 rounded-full animate-float" />
+      <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-purple-500/30 rounded-full animate-float animation-delay-2000" />
+      <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-cyan-500/30 rounded-full animate-float animation-delay-4000" />
+      <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 bg-blue-500/20 rounded-full animate-float animation-delay-1000" />
+
+      <div className="relative flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl w-full space-y-8">
+          <div className="text-center">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300">
+              <span className="text-white font-bold text-3xl">D</span>
+            </div>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent mb-2">Join Dentura</h2>
+            <p className="text-lg text-gray-600 font-medium">Create your dental practice management account</p>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Join Dentura</h2>
-          <p className="mt-2 text-gray-600">Create your dental practice management account</p>
-        </div>
 
         {/* Progress Bar */}
         <div className="space-y-4">
@@ -729,7 +757,7 @@ export default function SignupPage() {
           <Progress value={(currentStep / 4) * 100} className="h-2" />
         </div>
 
-        <Card className="shadow-xl border-0">
+        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center">
               {(() => {
@@ -809,6 +837,7 @@ export default function SignupPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   )
