@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: "1",
         email,
         name: email.split("@")[0],
-        role: email.includes("admin") ? "admin" : "dentist", // Set admin role if email contains 'admin'
+        role: email.includes("admin") ? "admin" : "member", // Set admin role if email contains 'admin'
       }
 
       setUser(dummyUser)
