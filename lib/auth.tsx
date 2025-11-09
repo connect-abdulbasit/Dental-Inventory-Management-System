@@ -4,11 +4,21 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
+type UserRole =
+  | "admin"
+  | "staff"
+  | "member"
+  | "dentist"
+  | "hygienist"
+  | "assistant"
+  | "office_manager"
+  | "owner"
+
 interface User {
   id: string
   email: string
   name: string
-  role: "admin" | "member" | "dentist" | "hygienist" | "assistant" | "office_manager" | "owner"
+  role: UserRole
   clinic?: {
     clinicName: string
     clinicType: string
@@ -28,9 +38,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   signup: (userData: any) => Promise<boolean>
-  logout: () => void
+  logout: () => Promise<void>
   isLoading: boolean
 }
 
@@ -50,29 +60,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      })
 
-    // Dummy authentication - accept any email/password
-    if (email && password) {
-      const dummyUser: User = {
-        id: "1",
-        email,
-        name: email.split("@")[0],
-        role: email.includes("admin") ? "admin" : "member", // Set admin role if email contains 'admin'
+      const data = (await response.json().catch(() => null)) as
+        | { user?: User; error?: string }
+        | null
+
+      if (!response.ok || !data?.user) {
+        return { success: false, error: data?.error ?? "Unable to sign in. Please try again." }
       }
 
-      setUser(dummyUser)
-      localStorage.setItem("cavity_user", JSON.stringify(dummyUser))
-      setIsLoading(false)
-      return true
-    }
+      setUser(data.user)
+      localStorage.setItem("cavity_user", JSON.stringify(data.user))
 
-    setIsLoading(false)
-    return false
+      return { success: true }
+    } catch (error) {
+      console.error("[LOGIN_FAILED]", error)
+      return { success: false, error: "Unable to sign in. Please try again." }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const signup = async (userData: any): Promise<boolean> => {
@@ -96,10 +115,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("cavity_user")
-    router.push("/login")
+  const logout = async () => {
+    setIsLoading(true)
+
+    try {
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch (error) {
+      console.error("[LOGOUT_FAILED]", error)
+    } finally {
+      setUser(null)
+      localStorage.removeItem("cavity_user")
+      setIsLoading(false)
+      router.push("/login")
+    }
   }
 
   return <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>{children}</AuthContext.Provider>
