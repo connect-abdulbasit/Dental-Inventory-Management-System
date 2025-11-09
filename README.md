@@ -1,273 +1,281 @@
-# 🦷 Dentura - Smart Dental Practice Management System
+# 🦷 Dentura – Smart Dental Practice Management System
 
-A modern, comprehensive dental practice management system built with Next.js, TypeScript, and Tailwind CSS. Streamline your dental practice with intelligent inventory management, appointment scheduling, and team collaboration tools.
+A modern full‑stack web application for dental practices built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Supabase**. Dentura centralises inventory, appointments, orders, analytics, and user management so that dental teams can operate from a single, secure workspace.
 
-![Dentura Preview](https://img.shields.io/badge/Status-Live-brightgreen)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC)
-
-## 🌟 Features
-
-### 📦 Smart Inventory Management
-- Track dental supplies and equipment
-- Set low-stock alerts and automated reordering
-- Manage supplier relationships and purchase orders
-- Real-time inventory tracking with barcode support
-
-### 📅 Appointment Scheduling
-- Streamlined calendar system for patient appointments
-- Automated reminders and notifications
-- Multi-provider scheduling support
-- Integration with patient management
-
-### 👥 Team Management
-- Invite team members with role-based permissions
-- Manage practice staff and their access levels
-- Track team performance and productivity
-- Secure user authentication and authorization
-
-### 📊 Analytics & Reports
-- Comprehensive practice performance insights
-- Revenue tracking and financial reports
-- Patient statistics and treatment analytics
-- Customizable dashboard with key metrics
-
-### 🔒 Security & Compliance
-- HIPAA-compliant platform ensuring patient data security
-- End-to-end encryption for sensitive information
-- Audit trails and compliance reporting
-- Secure cloud infrastructure
-
-### 🔗 Easy Integration
-- Seamless integration with existing dental practice management systems
-- API-first architecture for third-party integrations
-- Export/import capabilities for data migration
-- Webhook support for real-time updates
-
-## 🚀 Live Demo
-
-**🌐 [View Live Demo](https://dental-inventory-management-system.vercel.app)**
-
-Experience the full functionality of Dentura with our interactive demo. No signup required for basic exploration.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui components
-- **Authentication**: Custom auth system with role-based access
-- **State Management**: React Context API
-- **Icons**: Lucide React
-- **Deployment**: Vercel
-- **Version Control**: Git, GitHub
-
-## 📱 Screenshots
-
-### Landing Page
-![Landing Page](https://via.placeholder.com/800x400/3B82F6/FFFFFF?text=Modern+Landing+Page+with+Animations)
-
-### Dashboard
-![Dashboard](https://via.placeholder.com/800x400/8B5CF6/FFFFFF?text=Comprehensive+Dashboard)
-
-### Inventory Management
-![Inventory](https://via.placeholder.com/800x400/06B6D4/FFFFFF?text=Smart+Inventory+Management)
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ 
-- npm, yarn, or pnpm
-- Git
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/connect-abdulbasit/Dental-Inventory-Management-System.git
-   cd Dental-Inventory-Management-System
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Run the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## 📁 Project Structure
-
-```
-Dental-Inventory-Management-System/
-├── app/                          # Next.js 14 App Router
-│   ├── admin/                    # Admin panel pages
-│   ├── api/                      # API routes
-│   ├── appointments/             # Appointment management
-│   ├── dashboard/                # Main dashboard
-│   ├── inventory/                # Inventory management
-│   ├── login/                    # Authentication pages
-│   ├── orders/                   # Order management
-│   ├── signup/                   # User registration
-│   └── globals.css               # Global styles
-├── components/                   # Reusable UI components
-│   ├── ui/                       # shadcn/ui components
-│   ├── admin/                    # Admin-specific components
-│   ├── appointments/             # Appointment components
-│   ├── dashboard/                # Dashboard components
-│   ├── inventory/                # Inventory components
-│   └── orders/                   # Order components
-├── lib/                          # Utility functions and configurations
-├── hooks/                        # Custom React hooks
-└── public/                       # Static assets
-```
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary Blue**: `#3B82F6` - Trust and professionalism
-- **Secondary Purple**: `#8B5CF6` - Innovation and creativity
-- **Accent Cyan**: `#06B6D4` - Freshness and clarity
-- **Neutral Grays**: Various shades for text and backgrounds
-
-### Typography
-- **Headings**: Geist Sans (800 weight)
-- **Body**: Geist Sans (400-600 weight)
-- **Code**: Geist Mono
-
-### Components
-Built with shadcn/ui for consistent, accessible, and beautiful components.
-
-## 🔐 Authentication
-
-### Demo Credentials
-- **Admin Access**: Use any email containing "admin" (e.g., `admin@dentura.com`)
-- **Regular User**: Use any other email (e.g., `doctor@dentura.com`)
-- **Password**: Any password works for demo purposes
-
-### User Roles
-- **Admin**: Full system access, user management, system settings
-- **Dentist**: Patient management, appointments, treatment planning
-- **Hygienist**: Appointment management, patient care
-- **Assistant**: Inventory management, appointment support
-- **Office Manager**: Administrative tasks, reporting
-
-## 📊 Features Overview
-
-### 🏠 Dashboard
-- Real-time practice metrics
-- Low-stock alerts
-- Recent activity feed
-- Quick action buttons
-- Performance charts
-
-### 📦 Inventory Management
-- Product catalog with categories
-- Stock level monitoring
-- Automated reorder points
-- Supplier management
-- Purchase order tracking
-
-### 📅 Appointments
-- Calendar view with multiple providers
-- Patient scheduling
-- Appointment reminders
-- Treatment planning
-- Time slot management
-
-### 👥 Team Management
-- User invitation system
-- Role-based permissions
-- Team performance tracking
-- Access control management
-
-### 📈 Analytics
-- Revenue tracking
-- Patient statistics
-- Treatment analytics
-- Custom reports
-- Export capabilities
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy with zero configuration
-
-### Other Platforms
-- **Netlify**: Compatible with static export
-- **Railway**: Full-stack deployment
-- **Docker**: Containerized deployment
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow TypeScript best practices
-- Use Tailwind CSS for styling
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) - The React framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [shadcn/ui](https://ui.shadcn.com/) - Beautiful UI components
-- [Lucide](https://lucide.dev/) - Beautiful & consistent icon toolkit
-- [Vercel](https://vercel.com/) - Deployment platform
-
-## 📞 Support
-
-- **GitHub Issues**: [Report bugs or request features](https://github.com/connect-abdulbasit/Dental-Inventory-Management-System/issues)
-- **Email**: [Contact Support](mailto:support@dentura.com)
-- **Documentation**: [Full Documentation](https://docs.dentura.com)
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=connect-abdulbasit/Dental-Inventory-Management-System&type=Date)](https://star-history.com/#connect-abdulbasit/Dental-Inventory-Management-System&Date)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
 ---
 
-<div align="center">
+## 🔖 Table of Contents
 
-**⭐ Star this repository if you found it helpful!**
+1. [Overview](#overview)
+2. [Solution Modules](#solution-modules)
+3. [Architecture](#architecture)
+4. [Tech Stack](#tech-stack)
+5. [Authentication & Authorization](#authentication--authorization)
+6. [API Surface](#api-surface)
+7. [Database & Migrations](#database--migrations)
+8. [Getting Started](#getting-started)
+9. [Environment Variables](#environment-variables)
+10. [Project Structure](#project-structure)
+11. [Development Workflow](#development-workflow)
+12. [Roadmap](#roadmap)
+13. [Contributing](#contributing)
+14. [License](#license)
 
-Made with ❤️ by [Abdul Basit](https://github.com/connect-abdulbasit)
+---
 
-[🌐 Live Demo](https://dental-inventory-management-system.vercel.app) • [📖 Documentation](https://docs.dentura.com) • [🐛 Report Bug](https://github.com/connect-abdulbasit/Dental-Inventory-Management-System/issues) • [✨ Request Feature](https://github.com/connect-abdulbasit/Dental-Inventory-Management-System/issues)
+## Overview
 
-</div>
+Dentura targets day‑to‑day operations inside dental organisations:
+
+- **Inventory**: monitor consumables, detect low stock, manage suppliers.
+- **Appointments**: schedule patients, track dentist availability, mark completion.
+- **Orders**: follow procurement lifecycle and status updates.
+- **Dashboard**: surface KPIs, show recent activity, highlight alerts.
+- **Admin**: invite staff, assign roles, audit user activity.
+
+The application currently ships as a web experience (Next.js App Router) and leverages Supabase for authentication and persistence. Core flows (login, signup, user/session state) operate through Supabase JWT tokens and the `@supabase/supabase-js` client; inventory/orders/appointments endpoints are transitioning from mock data to queries executed with pure SQL against Supabase Postgres.
+
+---
+
+## Solution Modules
+
+| Module | Description |
+|--------|-------------|
+| **Landing** | Marketing-style page describing product value, CTA to register/sign in. |
+| **Authentication** | Supabase email/password auth with JWT sessions, role metadata, protected/admin routes, password toggle, signup wizard. |
+| **Dashboard** | Overview of totals (products, alerts, revenue), activity feed, low stock summary. |
+| **Inventory** | Data table with stock level, threshold, supplier, update dialog, CSV import (API ready for Supabase integration). |
+| **Appointments** | Calendar view (month/day), multi-slot appointments, create/edit modal, status badges. |
+| **Orders** | Order stats panel, table with status filter, update endpoint placeholder. |
+| **Admin Panel** | User list, invite modal, edit modal, payment management stub, role guard. |
+| **Global Components** | `PageHeader`, `Navbar`, shadcn/ui primitives, context hooks, layout wrappers. |
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                        Frontend                          │
+│  Next.js 14 (App Router) + React 18 + TypeScript         │
+│  • Pages: landing, login, signup, dashboard, modules     │
+│  • Components: shadcn/ui based, Tailwind styled          │
+│  • State: React Context (AuthProvider)                   │
+│  • Auth guard: ProtectedRoute, AdminRoute                │
+└───────────────▲──────────────────────────────────────────┘
+                │supabase-js (JWT session, RPC, SQL)
+┌───────────────┴──────────────────────────────────────────┐
+│                        Backend                           │
+│  Next.js API Routes (Node runtime)                       │
+│  • /api/inventory, /api/orders, /api/appointments…       │
+│  • Currently return mock data → migrating to SQL         │
+│  • Will execute raw SQL against Supabase Postgres        │
+└───────────────▲──────────────────────────────────────────┘
+                │Postgres connection string (no ORM)
+┌───────────────┴──────────────────────────────────────────┐
+│                        Database                          │
+│  Supabase PostgreSQL                                     │
+│  • Tables: inventory_items, orders, appointments, users  │
+│  • Auth: Supabase Auth (JWT)                             │
+│  • Access: direct SQL via SQL migrations                 │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Tech Stack
+
+| Area | Technology | Notes |
+|------|------------|-------|
+| Framework | **Next.js 14** | App Router, data fetching, API routes |
+| Language | **TypeScript 5** | strict mode, incremental builds |
+| Styling | **Tailwind CSS 3** + shadcn/ui | design system + animations |
+| Auth | **Supabase Auth** | email/password, JWT sessions, metadata roles |
+| Database | **Supabase Postgres** | pure SQL (no ORM), `supabase-js` client |
+| Icons | **Lucide React** | consistent iconography |
+| Tooling | ESLint, Prettier, pnpm/npm scripts |
+| Deployment | Vercel (recommended) | zero-config Next.js hosting |
+
+---
+
+## Authentication & Authorization
+
+- **Supabase Client (`lib/supabase.ts`)** – uses public anon key for browser operations (auth, protected routes).
+- **Auth Context (`lib/auth.tsx`)** – manages session state, login, signup, logout, role extraction.
+- **Role Metadata** – stored in Supabase user metadata. Supported roles: `admin`, `member`, `dentist`, `hygienist`, `assistant`, `office_manager`, `owner`.
+- **Route Guards**:
+  - `ProtectedRoute` redirects unauthenticated users to `/login`.
+  - `AdminRoute` ensures the current user’s role is `admin`.
+
+---
+
+## API Surface
+
+> API routes currently return mocked responses while Supabase tables are being wired in. The interfaces are stable so migrating to real SQL responses will be seamless.
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/dashboard` | GET | Dashboard metrics, low stock, recent activity. |
+| `/api/inventory` | GET | Inventory list (→ migrate to SQL query). |
+| `/api/inventory/update` | POST | Update quantity (→ integrate SQL `UPDATE`). |
+| `/api/appointments` | GET/POST | Appointment list & creation (→ SQL). |
+| `/api/appointments/complete` | POST | Mark appointment complete. |
+| `/api/orders` | GET | Orders list (→ SQL). |
+| `/api/orders/update` | POST | Update order status (→ SQL). |
+| `/api/users` | GET/POST | List + invite users (mocked). |
+| `/api/users/[id]` | PUT/DELETE | Update/delete user (mocked). |
+
+Supabase `supabase-js` can also query tables directly from client components if needed (e.g. realtime features).
+
+---
+
+## Database & Migrations
+
+1. **Provision Supabase** – create a project at [supabase.com](https://supabase.com/).
+2. **Track SQL** – store migration files in `database/migrations/*.sql`. Example:
+   ```sql
+   CREATE TABLE inventory_items (
+     id BIGSERIAL PRIMARY KEY,
+     name TEXT NOT NULL,
+     quantity INTEGER NOT NULL DEFAULT 0,
+     threshold INTEGER NOT NULL DEFAULT 0,
+     category TEXT,
+     supplier TEXT,
+     last_updated TIMESTAMPTZ DEFAULT NOW()
+   );
+   ```
+3. **Apply migrations**  
+   - Web SQL editor in Supabase dashboard, or  
+   - CLI/psql: `psql "$SUPABASE_DB_URL" -f database/migrations/001_init.sql`
+4. **Seed data** (optional) with pure SQL inserts.
+
+> No ORM is used. All persistence is handled via SQL statements called through Supabase’s REST/RPC layer or `supabase-js`.
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- pnpm, npm, or yarn
+- Supabase account (Postgres DB)
+
+### Installation
+
+```bash
+git clone https://github.com/connect-abdulbasit/Dental-Inventory-Management-System.git
+cd Dental-Inventory-Management-System
+npm install
+```
+
+Create `.env.local` (see variables below), then run:
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000`.
+
+---
+
+## Environment Variables
+
+Define these in `.env.local` (never commit this file):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
+SUPABASE_DB_URL=postgresql://postgres:password@db.xxx.supabase.co:5432/postgres  # optional for server-side SQL
+```
+
+If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_ROLE_KEY` **outside** the browser (CLI, Node scripts).
+
+---
+
+## Project Structure
+
+```
+.
+├── app/
+│   ├── admin/               # Admin routes & layout
+│   ├── api/                 # Serverless API routes (Next.js)
+│   ├── appointments/        # Appointments UI & layout
+│   ├── dashboard/           # Dashboard pages/components
+│   ├── inventory/           # Inventory management pages
+│   ├── login/               # Login page
+│   ├── orders/              # Orders management
+│   ├── signup/              # Signup multi-step form
+│   └── layout.tsx           # Root layout
+├── components/
+│   ├── admin/               # Admin shared UI
+│   ├── appointments/        # Calendar components
+│   ├── dashboard/           # Overview cards, alerts, activity feeds
+│   ├── inventory/           # Tables, CSV upload
+│   ├── orders/              # Order stats/table
+│   ├── ui/                  # shadcn/ui system
+│   └── page-header.tsx      # Shared header
+├── hooks/                   # Reusable hooks (toast, mobile)
+├── lib/
+│   ├── auth.tsx             # Auth context & guards
+│   └── supabase.ts          # Supabase client factory
+├── public/                  # Static assets
+└── styles/                  # Global CSS
+```
+
+---
+
+## Development Workflow
+
+1. **Auth** – Use Supabase dashboard to invite users or test signup locally.
+2. **Database changes** – create `.sql` migration, run it against Supabase, commit file.
+3. **API updates** – adjust `/app/api/*` to query Supabase via SQL or `supabase-js`.
+4. **Testing** – manual UI testing + Supabase auth simulation (automated tests TBD).
+5. **Deployment** – push to GitHub → Vercel auto-build (ensure env vars configured).
+
+---
+
+## Roadmap
+
+- [ ] Replace mock API responses with real SQL queries (inventory/orders/appointments/users).
+- [ ] Add reporting charts (Recharts integration).
+- [ ] Implement audit logging for admin actions.
+- [ ] Add two-factor authentication via Supabase OTP.
+- [ ] Build automated migration runner.
+- [ ] Integrate payment management (Stripe / Supabase Functions).
+- [ ] Expand test coverage (Playwright + Vitest).
+
+---
+
+## Contributing
+
+We welcome contributions of any size. Start by forking the repo, creating a feature branch, and opening a pull request.
+
+```bash
+git checkout -b feature/your-feature
+# make your changes
+git commit -m "Add feature"
+git push origin feature/your-feature
+# open PR on GitHub
+```
+
+### Contribution Guidelines
+- Follow TypeScript & ESLint best practices.
+- Use Tailwind utility classes (or extend the design system if necessary).
+- Keep commit messages and PR descriptions clear.
+- Update the README or inline docs when behaviour changes.
+
+---
+
+## License
+
+This project is licensed under the MIT License – see [`LICENSE`](LICENSE).
+
+---
+
+If Dentura helps you, please ⭐ the repository. Feedback and feature requests are always appreciated!
