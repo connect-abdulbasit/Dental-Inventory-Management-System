@@ -15,17 +15,18 @@ A modern full‑stack web application for dental practices built with **Next.js 
 1. [Overview](#overview)
 2. [Solution Modules](#solution-modules)
 3. [Architecture](#architecture)
-4. [Tech Stack](#tech-stack)
-5. [Authentication & Authorization](#authentication--authorization)
-6. [API Surface](#api-surface)
-7. [Database & Migrations](#database--migrations)
-8. [Getting Started](#getting-started)
-9. [Environment Variables](#environment-variables)
-10. [Project Structure](#project-structure)
-11. [Development Workflow](#development-workflow)
-12. [Roadmap](#roadmap)
-13. [Contributing](#contributing)
-14. [License](#license)
+4. [Diagrams](#diagrams)
+5. [Tech Stack](#tech-stack)
+6. [Authentication & Authorization](#authentication--authorization)
+7. [API Surface](#api-surface)
+8. [Database & Migrations](#database--migrations)
+9. [Getting Started](#getting-started)
+10. [Environment Variables](#environment-variables)
+11. [Project Structure](#project-structure)
+12. [Development Workflow](#development-workflow)
+13. [Roadmap](#roadmap)
+14. [Contributing](#contributing)
+15. [License](#license)
 
 ---
 
@@ -86,6 +87,60 @@ The application currently ships as a web experience (Next.js App Router) and lev
 │  • Access: direct SQL via SQL migrations                 │
 └──────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Diagrams
+
+### Use Case Diagram
+- **Live diagram**: [Open Use Case Diagram](https://excalidraw.com/#json=hlDiTjCreay34kAk7KU0U,2MRtHYJtk6MAh2YFHMEkWA)
+- **Screenshot reference**: ![Dentura Use Case Diagram](public/use-case-diagram.png)
+
+### Entity Relationship Diagram (ERD)
+- **Live diagram**: [Open ERD](https://excalidraw.com/#json=1uTEbqB71rqFsY2XjePkS,tSQbpyt4JrC37DQ1POflbQ)
+- **Screenshot reference**: ![Dentura ERD](public/entity-relationship-diagram.png)
+
+### Normalized Schema Overview
+- **Live diagram**: [Open Normalized Schema](https://lucid.app/lucidchart/fbda5bf2-c2ef-4365-9296-8efd33a22114/edit?viewport_loc=-2544%2C-449%2C5112%2C2744%2C0_0&invitationId=inv_d7d6c1b7-0429-498f-a694-ebca20145628)
+- **Screenshot reference**: ![Dentura Normalized Schema](public/normalized-schema-overview.png)
+
+### Sequence Diagram
+- **Live diagram**: `[Add Sequence Diagram URL here](https://example.com/sequence-diagram)`
+- **Screenshot reference**: ![Dentura Sequence Diagram](public/sequence-diagram.jpeg)
+
+---
+
+### High-Level System Architecture Diagram
+
+```
+┌──────────────┐     HTTPS Requests       ┌───────────────────────────────┐
+│  User Agent  │ ───────────────────────▶ │  Front-end (Next.js + React)  │
+│ (Browser/UI) │                          │  • Tailwind UI Components     │
+└──────┬───────┘                          │  • Auth Context (`lib/auth`)  │
+       │                                  └───────────────┬───────────────┘
+       │                 JWT + Session State              │
+       │ ◀────────────────────────────────────────────────┘
+       │                                                  │
+       │                                  ┌───────────────▼───────────────┐
+       │                                  │ Middleware / API Gateway       │
+       │                                  │ (Next.js API Routes `/api`)    │
+       │                                  │  • AuthN/AuthZ via `lib/jwt`   │
+       │                                  │  • Validation & DTO shaping    │
+       │                                  └───────────────┬───────────────┘
+       │                         SQL Queries (Drizzle ORM)│
+       │                                  ┌───────────────▼───────────────┐
+       └─────────────────────────────────▶│ Back-end Data Access Layer     │
+                                          │ (`lib/db` + Drizzle + SQL)     │
+                                          └───────────────┬───────────────┘
+                                  Result Sets / CRUD Ops   │
+                                          ┌───────────────▼───────────────┐
+                                          │  Supabase Postgres Database    │
+                                          │  • Users, Inventory, Orders    │
+                                          │  • Appointments, Dashboard     │
+                                          └────────────────────────────────┘
+```
+
+- **Data flow**: The browser issues HTTPS requests to the Next.js front-end, which invokes API routes. Middleware handles authentication with JWT tokens, invokes Drizzle ORM, and persists or reads data from Supabase Postgres. JSON responses bubble back through the API layer to the UI for rendering. External APIs can be introduced at the middleware tier by adding additional connectors before data access.
 
 ---
 
