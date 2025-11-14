@@ -4,8 +4,10 @@ import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/page-header"
 import { InventoryTable } from "@/components/inventory/inventory-table"
 import { CsvUpload } from "@/components/inventory/csv-upload"
+import { ProductCatalog } from "@/components/inventory/product-catalog"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, Plus } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RefreshCw, Plus, Package, List } from "lucide-react"
 
 interface InventoryItem {
   id: number
@@ -62,25 +64,40 @@ export default function InventoryPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Item
-          </Button>
         </div>
       </PageHeader>
 
-      <CsvUpload onUploadComplete={handleRefresh} />
+      <Tabs defaultValue="catalog" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="catalog" className="flex items-center space-x-2">
+            <Package className="h-4 w-4" />
+            <span>Product Catalog</span>
+          </TabsTrigger>
+          <TabsTrigger value="inventory" className="flex items-center space-x-2">
+            <List className="h-4 w-4" />
+            <span>Current Inventory</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Current Inventory</h3>
-          <p className="text-sm text-gray-500">
-            {items.length} items • {items.filter((item) => item.status === "Low").length} low stock alerts
-          </p>
-        </div>
+        <TabsContent value="catalog" className="space-y-4">
+          <ProductCatalog onProductAdded={handleRefresh} />
+        </TabsContent>
 
-        <InventoryTable items={items} onRefresh={handleRefresh} />
-      </div>
+        <TabsContent value="inventory" className="space-y-4">
+          <CsvUpload onUploadComplete={handleRefresh} />
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Current Inventory</h3>
+              <p className="text-sm text-gray-500">
+                {items.length} items • {items.filter((item) => item.status === "Low").length} low stock alerts
+              </p>
+            </div>
+
+            <InventoryTable items={items} onRefresh={handleRefresh} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
