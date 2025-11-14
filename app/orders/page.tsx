@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/page-header"
 import { OrdersTable } from "@/components/orders/orders-table"
 import { OrderStats } from "@/components/orders/order-stats"
+import { CartSidebar } from "@/components/orders/cart-sidebar"
+import { CheckoutModal } from "@/components/orders/checkout-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -27,6 +29,7 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
 
   const fetchOrders = async () => {
     setIsLoading(true)
@@ -85,10 +88,13 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Orders" description="Track supply orders and deliveries">
-        <Button onClick={handleRefresh}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center space-x-3">
+          <CartSidebar onCheckout={() => setIsCheckoutModalOpen(true)} />
+          <Button variant="outline" onClick={handleRefresh}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </PageHeader>
 
       <OrderStats orders={orders} />
@@ -128,6 +134,12 @@ export default function OrdersPage() {
 
         <OrdersTable orders={filteredOrders} onRefresh={handleRefresh} />
       </div>
+
+      <CheckoutModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        onSuccess={handleRefresh}
+      />
     </div>
   )
 }

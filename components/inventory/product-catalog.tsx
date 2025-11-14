@@ -14,8 +14,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Package, Plus, Search } from "lucide-react"
+import { Package, Plus, Search, ShoppingCart, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useCart } from "@/lib/cart-context"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Pagination,
   PaginationContent,
@@ -30,113 +32,16 @@ interface Product {
   id: string
   name: string
   description: string
-  category: string
-  supplier: string
-  unit: string
+  price: number
+  image_url: string
+  category?: string
+  supplier?: string
+  unit?: string
 }
 
 interface ProductCatalogProps {
   onProductAdded: () => void
 }
-
-const availableProducts: Product[] = [
-  {
-    id: "1",
-    name: "Dental Floss",
-    description: "High-quality dental floss for daily oral hygiene",
-    category: "Hygiene",
-    supplier: "DentalCorp",
-    unit: "Pack of 50",
-  },
-  {
-    id: "2",
-    name: "Disposable Gloves",
-    description: "Latex-free disposable gloves for dental procedures",
-    category: "Safety",
-    supplier: "MedSupply Inc",
-    unit: "Box of 100",
-  },
-  {
-    id: "3",
-    name: "Anesthetic Cartridges",
-    description: "Local anesthetic cartridges for dental procedures",
-    category: "Medication",
-    supplier: "PharmaDental",
-    unit: "Box of 50",
-  },
-  {
-    id: "4",
-    name: "Composite Filling Material",
-    description: "High-quality composite resin for dental fillings",
-    category: "Materials",
-    supplier: "DentalCorp",
-    unit: "Kit",
-  },
-  {
-    id: "5",
-    name: "X-Ray Films",
-    description: "Digital X-ray films for dental imaging",
-    category: "Imaging",
-    supplier: "RadiologyPlus",
-    unit: "Pack of 100",
-  },
-  {
-    id: "6",
-    name: "Dental Mirrors",
-    description: "Sterilizable dental mirrors for examination",
-    category: "Instruments",
-    supplier: "InstrumentCo",
-    unit: "Set of 12",
-  },
-  {
-    id: "7",
-    name: "Suction Tips",
-    description: "Disposable suction tips for dental procedures",
-    category: "Disposables",
-    supplier: "DentalCorp",
-    unit: "Pack of 200",
-  },
-  {
-    id: "8",
-    name: "Fluoride Gel",
-    description: "Professional fluoride gel for dental treatments",
-    category: "Treatment",
-    supplier: "PharmaDental",
-    unit: "12 tubes",
-  },
-  {
-    id: "9",
-    name: "Dental Bibs",
-    description: "Disposable dental bibs for patient protection",
-    category: "Disposables",
-    supplier: "MedSupply Inc",
-    unit: "Pack of 500",
-  },
-  {
-    id: "10",
-    name: "Prophy Paste",
-    description: "Polishing paste for dental cleanings",
-    category: "Treatment",
-    supplier: "DentalCorp",
-    unit: "Jar",
-  },
-  {
-    id: "11",
-    name: "Cotton Rolls",
-    description: "Sterile cotton rolls for dental procedures",
-    category: "Disposables",
-    supplier: "MedSupply Inc",
-    unit: "Box of 1000",
-  },
-  {
-    id: "12",
-    name: "Dental Syringes",
-    description: "Disposable dental syringes for injections",
-    category: "Instruments",
-    supplier: "InstrumentCo",
-    unit: "Box of 50",
-  },
-]
 
 const ITEMS_PER_PAGE = 12
 
@@ -145,23 +50,62 @@ export function ProductCatalog({ onProductAdded }: ProductCatalogProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [productDetailsModal, setProductDetailsModal] = useState<Product | null>(null)
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([])
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
   const [formData, setFormData] = useState({
     currentQuantity: "",
     threshold: "",
     orderAmount: "",
   })
   const [isAdding, setIsAdding] = useState(false)
+  const [cartQuantityDialog, setCartQuantityDialog] = useState<{ product: Product | null; quantity: string }>({
+    product: null,
+    quantity: "1",
+  })
+  const [recentlyAddedToCart, setRecentlyAddedToCart] = useState<Set<string>>(new Set())
   const { toast } = useToast()
+  const { addToCart } = useCart()
+
+  // Fetch products on component mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoadingProducts(true)
+      try {
+        const response = await fetch("/api/products")
+        if (response.ok) {
+          const data = await response.json()
+          setAvailableProducts(data)
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load products",
+            variant: "destructive",
+          })
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load products",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingProducts(false)
+      }
+    }
+
+    fetchProducts()
+  }, [toast])
 
   const filteredProducts = useMemo(
     () =>
       availableProducts.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.supplier.toLowerCase().includes(searchQuery.toLowerCase()),
+          (product.category && product.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (product.supplier && product.supplier.toLowerCase().includes(searchQuery.toLowerCase())),
       ),
-    [searchQuery],
+    [searchQuery, availableProducts],
   )
 
   // Reset to page 1 when search query changes
@@ -291,7 +235,8 @@ export function ProductCatalog({ onProductAdded }: ProductCatalogProps) {
     }
   }
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category?: string) => {
+    if (!category) return "bg-gray-100 text-gray-700 border-gray-200"
     const colors: Record<string, string> = {
       Hygiene: "bg-blue-100 text-blue-700 border-blue-200",
       Safety: "bg-red-100 text-red-700 border-red-200",
@@ -301,6 +246,11 @@ export function ProductCatalog({ onProductAdded }: ProductCatalogProps) {
       Instruments: "bg-indigo-100 text-indigo-700 border-indigo-200",
       Disposables: "bg-gray-100 text-gray-700 border-gray-200",
       Treatment: "bg-pink-100 text-pink-700 border-pink-200",
+      "Lab Equipment": "bg-cyan-100 text-cyan-700 border-cyan-200",
+      Equipment: "bg-orange-100 text-orange-700 border-orange-200",
+      Implants: "bg-teal-100 text-teal-700 border-teal-200",
+      Maintenance: "bg-amber-100 text-amber-700 border-amber-200",
+      Accessories: "bg-slate-100 text-slate-700 border-slate-200",
     }
     return colors[category] || "bg-gray-100 text-gray-700 border-gray-200"
   }
@@ -336,37 +286,115 @@ export function ProductCatalog({ onProductAdded }: ProductCatalogProps) {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {currentProducts.map((product) => (
-                <Card key={product.id} className="hover:shadow-md transition-shadow">
+            {isLoadingProducts ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+                  <Card key={`skeleton-${index}`} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="mb-3">
+                        <Skeleton className="w-full h-48 rounded-lg mb-3" />
+                      </div>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <Skeleton className="h-5 w-full mb-2" />
+                          <Skeleton className="h-4 w-3/4 mb-2" />
+                          <Skeleton className="h-4 w-1/2" />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                      </div>
+                      <Skeleton className="h-4 w-32 mb-3" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-9 flex-1 rounded-md" />
+                        <Skeleton className="h-9 flex-1 rounded-md" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {currentProducts.map((product) => (
+                <Card 
+                  key={product.id} 
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => {
+                    // Just show the product from the already-fetched list
+                    setProductDetailsModal(product)
+                  }}
+                >
                   <CardContent className="p-4">
+                    <div className="mb-3">
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-48 object-contain bg-gray-50 rounded-lg mb-3"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = "https://via.placeholder.com/300x200?text=No+Image"
+                        }}
+                      />
+                    </div>
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 mb-1">{product.name}</h4>
-                        <p className="text-sm text-gray-600 mb-2">{product.description}</p>
+                        <h4 className="font-semibold text-gray-900 mb-1 line-clamp-2">{product.name}</h4>
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge className={getCategoryColor(product.category)}>{product.category}</Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {product.unit}
+                      {product.category && (
+                        <Badge className={getCategoryColor(product.category)}>{product.category}</Badge>
+                      )}
+                      <Badge variant="outline" className="text-xs font-semibold">
+                        ${product.price.toFixed(2)}
                       </Badge>
                     </div>
-                    <div className="text-xs text-gray-500 mb-3">
-                      <span className="font-medium">Supplier:</span> {product.supplier}
+                    {product.supplier && (
+                      <div className="text-xs text-gray-500 mb-3">
+                        <span className="font-medium">Supplier:</span> {product.supplier}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setCartQuantityDialog({ product, quantity: "1" })
+                        }}
+                      >
+                        {recentlyAddedToCart.has(product.name) ? (
+                          <>
+                            <Check className="h-4 w-4 mr-2" />
+                            Added
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            Add to Cart
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleSelectProduct(product)
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to Inventory
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleSelectProduct(product)}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add to Inventory
-                    </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {filteredProducts.length === 0 && (
               <div className="text-center py-8 text-gray-500">
@@ -516,6 +544,155 @@ export function ProductCatalog({ onProductAdded }: ProductCatalogProps) {
               {isAdding ? "Adding..." : "Add to Inventory"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cart Quantity Dialog */}
+      <Dialog
+        open={cartQuantityDialog.product !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCartQuantityDialog({ product: null, quantity: "1" })
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add {cartQuantityDialog.product?.name} to Cart</DialogTitle>
+            <DialogDescription>Enter the quantity you want to add to your cart.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="cartQuantity">
+                Quantity <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="cartQuantity"
+                type="number"
+                min="1"
+                placeholder="Enter quantity"
+                value={cartQuantityDialog.quantity}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === "" || (Number.parseInt(value) > 0 && Number.parseInt(value) <= 10000)) {
+                    setCartQuantityDialog({ ...cartQuantityDialog, quantity: value })
+                  }
+                }}
+                autoFocus
+              />
+              <p className="text-xs text-gray-500">
+                How many units of {cartQuantityDialog.product?.name} do you want to order?
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCartQuantityDialog({ product: null, quantity: "1" })}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                const quantity = Number.parseInt(cartQuantityDialog.quantity)
+                if (!quantity || quantity < 1) {
+                  toast({
+                    title: "Invalid quantity",
+                    description: "Please enter a valid quantity greater than 0.",
+                    variant: "destructive",
+                  })
+                  return
+                }
+
+                if (cartQuantityDialog.product) {
+                  addToCart({
+                    productName: cartQuantityDialog.product.name,
+                    quantity: quantity,
+                    category: cartQuantityDialog.product.category,
+                    supplier: cartQuantityDialog.product.supplier,
+                  })
+
+                  // Show success state
+                  setRecentlyAddedToCart((prev) => new Set(prev).add(cartQuantityDialog.product!.name))
+                  
+                  // Remove success state after 3 seconds
+                  setTimeout(() => {
+                    setRecentlyAddedToCart((prev) => {
+                      const newSet = new Set(prev)
+                      newSet.delete(cartQuantityDialog.product!.name)
+                      return newSet
+                    })
+                  }, 3000)
+
+                  toast({
+                    title: "Added to cart",
+                    description: `${quantity} x ${cartQuantityDialog.product.name} has been added to your cart.`,
+                  })
+
+                  setCartQuantityDialog({ product: null, quantity: "1" })
+                }
+              }}
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Add to Cart
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Details Modal */}
+      <Dialog open={productDetailsModal !== null} onOpenChange={(open) => {
+        if (!open) {
+          setProductDetailsModal(null)
+        }
+      }}>
+        <DialogContent className="max-w-7xl max-h-[90vh] w-[95vw] sm:w-[90vw] p-6 sm:p-8 overflow-y-auto">
+          {productDetailsModal ? (
+            <div className="space-y-6">
+              {/* Header with Title */}
+              <DialogHeader>
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 pr-8">
+                  {productDetailsModal.name}
+                </DialogTitle>
+              </DialogHeader>
+
+              {/* Image and Price Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Image */}
+                <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-center min-h-[250px] sm:min-h-[300px]">
+                  <img
+                    src={productDetailsModal.image_url}
+                    alt={productDetailsModal.name}
+                    className="max-w-full max-h-[250px] sm:max-h-[300px] object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = "https://via.placeholder.com/500x400?text=No+Image"
+                    }}
+                  />
+                </div>
+
+                {/* Price Card */}
+                <div className="flex items-center justify-center">
+                  <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-200 w-full text-center">
+                    <div className="text-sm font-medium text-gray-600 mb-2">Price</div>
+                    <div className="text-3xl sm:text-4xl font-bold text-blue-600">
+                      ${productDetailsModal.price.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-3 pt-4 border-t">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Description</h3>
+                <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {productDetailsModal.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </DialogContent>
       </Dialog>
     </>
