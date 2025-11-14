@@ -14,12 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, Package, Calendar, ShoppingCart, LogOut, Menu, X, User, Settings, ChevronDown } from "lucide-react"
+import { LayoutDashboard, Package, Calendar, ShoppingCart, LogOut, Menu, X, Settings, ChevronDown, ClipboardList } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Inventory", href: "/inventory", icon: Package },
   { name: "Appointments", href: "/appointments", icon: Calendar },
+  { name: "Procedures", href: "/procedures", icon: ClipboardList },
   { name: "Orders", href: "/orders", icon: ShoppingCart },
 ]
 

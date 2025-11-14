@@ -14,7 +14,9 @@ interface Appointment {
   date: string
   time: string
   duration: number
-  type: string
+  type?: string // Keep for backward compatibility
+  procedureName?: string
+  procedureId?: number
   status: string
   notes: string
 }
@@ -134,9 +136,11 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
     }
   }
 
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
+  const getProcedureColor = (procedureName?: string, type?: string) => {
+    const name = (procedureName || type || "").toLowerCase()
+    switch (name) {
       case "cleaning":
+      case "routine cleaning":
         return "bg-blue-50 text-blue-700"
       case "checkup":
         return "bg-green-50 text-green-700"
@@ -144,9 +148,16 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
         return "bg-orange-50 text-orange-700"
       case "emergency":
         return "bg-red-50 text-red-700"
+      case "tooth filling":
+      case "filling":
+        return "bg-purple-50 text-purple-700"
       default:
         return "bg-gray-50 text-gray-700"
     }
+  }
+
+  const getDisplayName = (appointment: Appointment) => {
+    return appointment.procedureName || appointment.type || "Procedure"
   }
 
   const daysInMonth = getDaysInMonth(currentDate)
@@ -220,10 +231,10 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
                               </div>
                             </div>
                             <div className="text-sm text-gray-600 mb-2">
-                              {appointment.type}
+                              {getDisplayName(appointment)}
                             </div>
                             <div className="flex items-center justify-between">
-                              <Badge className={`text-xs ${getTypeColor(appointment.type)}`}>
+                              <Badge className={`text-xs ${getProcedureColor(appointment.procedureName, appointment.type)}`}>
                                 {appointment.duration}min
                               </Badge>
                               <Badge className={`text-xs ${getStatusColor(appointment.status)}`}>
@@ -350,8 +361,8 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
                             <span className="truncate font-medium">{appointment.patientName}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <Badge className={`text-xs ${getTypeColor(appointment.type)}`}>
-                              {appointment.type}
+                            <Badge className={`text-xs ${getProcedureColor(appointment.procedureName, appointment.type)}`}>
+                              {getDisplayName(appointment)}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               {appointment.duration}min
@@ -390,12 +401,12 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-700">Types:</span>
+              <span className="text-sm font-medium text-gray-700">Procedures:</span>
               <div className="flex items-center gap-2">
-                <Badge className="bg-blue-50 text-blue-700">Cleaning</Badge>
-                <Badge className="bg-green-50 text-green-700">Checkup</Badge>
+                <Badge className="bg-blue-50 text-blue-700">Routine Cleaning</Badge>
+                <Badge className="bg-purple-50 text-purple-700">Tooth Filling</Badge>
                 <Badge className="bg-orange-50 text-orange-700">Treatment</Badge>
-                <Badge className="bg-red-50 text-red-700">Emergency</Badge>
+                <Badge className="bg-gray-50 text-gray-700">Other</Badge>
               </div>
             </div>
           </div>
