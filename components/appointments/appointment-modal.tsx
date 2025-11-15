@@ -419,10 +419,23 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
           <div className="flex space-x-2">
             {mode === "view" && appointment?.status === "scheduled" && (
               <>
-                <Button variant="outline" onClick={handleComplete} disabled={isLoading}>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Complete
-                </Button>
+                {(() => {
+                  const appointmentDate = appointment.date && appointment.time 
+                    ? new Date(`${appointment.date}T${appointment.time}`)
+                    : null
+                  const isPast = appointmentDate ? appointmentDate < new Date() : false
+                  return (
+                    <Button 
+                      variant="outline" 
+                      onClick={handleComplete} 
+                      disabled={isLoading || !isPast}
+                      title={!isPast ? "Cannot mark future appointments as completed" : ""}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Complete
+                    </Button>
+                  )
+                })()}
                 <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete

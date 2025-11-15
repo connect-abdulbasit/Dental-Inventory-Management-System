@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/page-header"
 import { CalendarView } from "@/components/appointments/calendar-view"
+import { AppointmentsList } from "@/components/appointments/appointments-list"
 import { AppointmentModal } from "@/components/appointments/appointment-modal"
 import { Button } from "@/components/ui/button"
-import { Plus, RefreshCw, Calendar } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Plus, RefreshCw, Calendar, List } from "lucide-react"
 
 interface Appointment {
   id: number
@@ -15,7 +17,8 @@ interface Appointment {
   date: string
   time: string
   duration: number
-  type: string
+  type?: string
+  procedureName?: string
   status: string
   notes: string
 }
@@ -99,7 +102,30 @@ export default function AppointmentsPage() {
         </div>
       </PageHeader>
 
-      <CalendarView appointments={appointments} onAppointmentClick={handleAppointmentClick} />
+      <Tabs defaultValue="calendar" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="calendar">
+            <Calendar className="h-4 w-4 mr-2" />
+            Calendar View
+          </TabsTrigger>
+          <TabsTrigger value="list">
+            <List className="h-4 w-4 mr-2" />
+            All Appointments
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="calendar" className="space-y-4">
+          <CalendarView appointments={appointments} onAppointmentClick={handleAppointmentClick} />
+        </TabsContent>
+        
+        <TabsContent value="list" className="space-y-4">
+          <AppointmentsList 
+            appointments={appointments} 
+            onUpdate={fetchAppointments}
+            onView={handleAppointmentClick}
+          />
+        </TabsContent>
+      </Tabs>
 
       <AppointmentModal
         appointment={selectedAppointment}

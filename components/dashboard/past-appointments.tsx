@@ -30,27 +30,35 @@ export function PastAppointments({ appointments, onUpdate }: PastAppointmentsPro
   const [updatingId, setUpdatingId] = useState<number | null>(null)
   const { toast } = useToast()
 
-  // Filter out completed and cancelled appointments
-  const pendingAppointments = appointments.filter(
-    (apt) => apt.status === "scheduled"
-  )
+  // Filter out completed and cancelled appointments, and only get past appointments
+  const now = new Date()
+  const pendingPastAppointments = appointments
+    .filter((apt) => apt.status === "scheduled")
+    .filter((apt) => {
+      const aptDate = new Date(`${apt.date}T${apt.time}`)
+      return aptDate < now
+    })
+    .sort((a, b) => {
+      // Sort by date/time descending (most recent first)
+      const dateA = new Date(`${a.date}T${a.time}`).getTime()
+      const dateB = new Date(`${b.date}T${b.time}`).getTime()
+      return dateB - dateA
+    })
+    .slice(0, 3) // Only show 3 latest
 
-  if (pendingAppointments.length === 0) {
+  if (pendingPastAppointments.length === 0) {
     return (
-      <Card className="border-2">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b">
-          <CardTitle className="flex items-center gap-2 text-gray-900">
-            <Calendar className="h-5 w-5 text-blue-600" />
-            Past Appointments
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Calendar className="h-4 w-4 text-blue-600" />
+            Recent Past Appointments
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-3">
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
-            </div>
-            <p className="text-sm font-medium text-gray-700">All caught up!</p>
-            <p className="text-xs text-gray-500 mt-1">No past appointments pending action</p>
+        <CardContent className="pt-0">
+          <div className="text-center py-4">
+            <CheckCircle2 className="h-6 w-6 text-green-600 mx-auto mb-2" />
+            <p className="text-xs text-gray-600">All caught up!</p>
           </div>
         </CardContent>
       </Card>
@@ -108,60 +116,52 @@ export function PastAppointments({ appointments, onUpdate }: PastAppointmentsPro
   }
 
   return (
-    <Card className="border-2">
-      <CardHeader className="bg-gradient-to-r">
-        <CardTitle className="flex items-center gap-2 text-gray-900">
-          <Calendar className="h-5 w-5" />
-          Past Appointments
-          <Badge className="ml-auto">
-            {pendingAppointments.filter((apt) => {
-              const aptDate = new Date(`${apt.date}T${apt.time}`)
-              return aptDate < new Date()
-            }).length}
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <Calendar className="h-4 w-4" />
+          Recent Past Appointments
+          <Badge variant="outline" className="ml-auto text-xs">
+            {pendingPastAppointments.length}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          {pendingAppointments.map((appointment) => {
-            const { dateStr, timeStr, isPast } = formatDateTime(
+      <CardContent className="pt-0">
+        <div className="space-y-2">
+          {pendingPastAppointments.map((appointment) => {
+            const { dateStr, timeStr } = formatDateTime(
               appointment.date,
               appointment.time
             )
-
-            // Only show past appointments
-            if (!isPast) return null
 
             const isUpdating = updatingId === appointment.id
 
             return (
               <div
                 key={appointment.id}
-                className="border-2 rounded-xl p-4 space-y-3 bg-white hover:shadow-md transition-all"
+                className="border rounded-lg p-2.5 bg-white hover:shadow-sm transition-all"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-1.5 rounded-full bg-blue-100">
-                        <User className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <span className="font-bold text-gray-900 text-base">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <User className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                      <span className="font-semibold text-gray-900 text-sm truncate">
                         {appointment.patientName}
                       </span>
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar className="h-4 w-4 text-red-500" />
-                        <span className="font-medium">{dateStr}</span>
+                    <div className="space-y-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                        <span>{dateStr}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Clock className="h-4 w-4 text-red-500" />
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3 w-3 text-gray-400 flex-shrink-0" />
                         <span>
-                          {timeStr} • <span className="font-medium">{appointment.duration} min</span>
+                          {timeStr} • {appointment.duration} min
                         </span>
                       </div>
                       <div>
-                        <Badge className="bg-blue-100 text-blue-700 border-blue-300 text-xs font-medium">
+                        <Badge variant="outline" className="text-xs py-0 px-1.5 h-5">
                           {appointment.procedureName || appointment.type}
                         </Badge>
                       </div>
@@ -169,38 +169,31 @@ export function PastAppointments({ appointments, onUpdate }: PastAppointmentsPro
                   </div>
                 </div>
 
-                {appointment.notes && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <p className="text-sm text-gray-600 italic">
-                      {appointment.notes}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-3 border-t-2 border-gray-100">
+                <div className="flex gap-2 pt-2 border-t border-gray-100">
                   <Button
                     size="sm"
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium shadow-sm"
+                    className="flex-1 h-7 text-xs bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => handleStatusUpdate(appointment.id, "completed")}
                     disabled={isUpdating}
                   >
                     {isUpdating ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                     ) : (
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
                     )}
-                    Mark Completed
+                    Complete
                   </Button>
                   <Button
                     size="sm"
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium shadow-sm"
+                    variant="destructive"
+                    className="flex-1 h-7 text-xs"
                     onClick={() => handleStatusUpdate(appointment.id, "cancelled")}
                     disabled={isUpdating}
                   >
                     {isUpdating ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                     ) : (
-                      <XCircle className="h-4 w-4 mr-2" />
+                      <XCircle className="h-3 w-3 mr-1" />
                     )}
                     Cancel
                   </Button>

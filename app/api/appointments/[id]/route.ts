@@ -21,6 +21,24 @@ export async function PUT(
     )
   }
 
+  const appointment = appointments[appointmentIndex]
+
+  // Validate: completed status can only be set for past appointments
+  if (appointmentData.status === "completed") {
+    const appointmentDate = new Date(`${appointment.date}T${appointment.time}`)
+    const now = new Date()
+    
+    if (appointmentDate >= now) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: "Cannot mark future appointments as completed. Only past appointments can be marked as completed." 
+        },
+        { status: 400 }
+      )
+    }
+  }
+
   // Update the appointment
   appointments[appointmentIndex] = {
     ...appointments[appointmentIndex],
