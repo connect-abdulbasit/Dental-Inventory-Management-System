@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { PageHeader } from "@/components/page-header"
 import { UserManagement } from "@/components/admin/user-management"
 import { Button } from "@/components/ui/button"
@@ -44,6 +45,7 @@ export default function AdminPage() {
 
 // Payment Management Component
 function PaymentManagement() {
+  const router = useRouter()
   const [paymentMethods, setPaymentMethods] = useState([
     {
       id: "1",
@@ -76,39 +78,6 @@ function PaymentManagement() {
     }
   ])
 
-  const [newPaymentMethod, setNewPaymentMethod] = useState({
-    type: "credit_card",
-    cardNumber: "",
-    expiryMonth: "",
-    expiryYear: "",
-    cvv: "",
-    cardholderName: "",
-    bankName: "",
-    accountNumber: "",
-    routingNumber: "",
-    accountType: "checking"
-  })
-
-  const [showAddForm, setShowAddForm] = useState(false)
-
-  const handleAddPaymentMethod = () => {
-    // Mock implementation
-    console.log("Adding payment method:", newPaymentMethod)
-    setShowAddForm(false)
-    setNewPaymentMethod({
-      type: "credit_card",
-      cardNumber: "",
-      expiryMonth: "",
-      expiryYear: "",
-      cvv: "",
-      cardholderName: "",
-      bankName: "",
-      accountNumber: "",
-      routingNumber: "",
-      accountType: "checking"
-    })
-  }
-
   const handleSetDefault = (id: string) => {
     setPaymentMethods(prev => 
       prev.map(method => ({
@@ -129,7 +98,7 @@ function PaymentManagement() {
           <h2 className="text-2xl font-bold text-gray-900">Payment Methods</h2>
           <p className="text-gray-600 mt-1">Manage payment methods and billing settings</p>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
+        <Button onClick={() => router.push("/payment-methods/add")}>
           <CreditCard className="w-4 h-4 mr-2" />
           Add Payment Method
         </Button>
@@ -186,123 +155,6 @@ function PaymentManagement() {
           </div>
         ))}
       </div>
-
-      {/* Add Payment Method Form */}
-      {showAddForm && (
-        <div className="border rounded-lg p-6 bg-white shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Add New Payment Method</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
-              <select 
-                value={newPaymentMethod.type}
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, type: e.target.value }))}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="credit_card">Credit Card</option>
-                <option value="bank_account">Bank Account</option>
-              </select>
-            </div>
-            
-            {newPaymentMethod.type === "credit_card" ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
-                  <input 
-                    type="text" 
-                    placeholder="1234 5678 9012 3456"
-                    value={newPaymentMethod.cardNumber}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, cardNumber: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="John Doe"
-                    value={newPaymentMethod.cardholderName}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, cardholderName: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Month</label>
-                  <input 
-                    type="text" 
-                    placeholder="12"
-                    value={newPaymentMethod.expiryMonth}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiryMonth: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Year</label>
-                  <input 
-                    type="text" 
-                    placeholder="2025"
-                    value={newPaymentMethod.expiryYear}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiryYear: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Chase Bank"
-                    value={newPaymentMethod.bankName}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, bankName: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
-                  <input 
-                    type="text" 
-                    placeholder="1234567890"
-                    value={newPaymentMethod.accountNumber}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, accountNumber: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Routing Number</label>
-                  <input 
-                    type="text" 
-                    placeholder="021000021"
-                    value={newPaymentMethod.routingNumber}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, routingNumber: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
-                  <select 
-                    value={newPaymentMethod.accountType}
-                    onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, accountType: e.target.value }))}
-                    className="w-full p-2 border rounded-md"
-                  >
-                    <option value="checking">Checking</option>
-                    <option value="savings">Savings</option>
-                  </select>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="flex gap-3 mt-6">
-            <Button onClick={handleAddPaymentMethod}>
-              Add Payment Method
-            </Button>
-            <Button variant="outline" onClick={() => setShowAddForm(false)}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
