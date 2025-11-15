@@ -34,13 +34,14 @@ A modern full‑stack web application for dental practices built with **Next.js 
 
 Dentura targets day‑to‑day operations inside dental organisations:
 
-- **Inventory**: monitor consumables, detect low stock, manage suppliers.
-- **Appointments**: schedule patients, track dentist availability, mark completion.
-- **Orders**: follow procurement lifecycle and status updates.
-- **Dashboard**: surface KPIs, show recent activity, highlight alerts.
-- **Admin**: invite staff, assign roles, audit user activity.
+- **Inventory Management**: Monitor consumables, detect low stock, manage suppliers, and manually adjust quantities. Browse product catalog and add items directly to inventory or shopping cart.
+- **Procedures**: Define dental procedures with associated inventory items and quantities. Automatically deduct inventory upon procedure completion.
+- **Appointments**: Schedule patients with procedure-based appointments, track availability, and manage past appointments that need completion or cancellation.
+- **Orders & Cart**: Shopping cart system with checkout functionality. Support for multiple payment methods (Cash on Delivery, Credit/Debit Cards) with saved card management.
+- **Dashboard**: Surface KPIs, show recent activity, and display past appointments requiring action.
+- **Admin**: Invite staff, assign roles, audit user activity, and manage payment settings.
 
-The application currently ships as a web experience (Next.js App Router) and leverages Supabase for authentication and persistence. Core flows (login, signup, user/session state) operate through Supabase JWT tokens and the `@supabase/supabase-js` client; inventory/orders/appointments endpoints are transitioning from mock data to queries executed with pure SQL against Supabase Postgres.
+The application currently ships as a web experience (Next.js App Router) and leverages Supabase for authentication and persistence. Core flows (login, signup, user/session state) operate through Supabase JWT tokens and the `@supabase/supabase-js` client. API endpoints use in-memory data stores for demonstration purposes and are ready for migration to Supabase Postgres.
 
 ---
 
@@ -50,12 +51,14 @@ The application currently ships as a web experience (Next.js App Router) and lev
 |--------|-------------|
 | **Landing** | Marketing-style page describing product value, CTA to register/sign in. |
 | **Authentication** | Supabase email/password auth with JWT sessions, role metadata, protected/admin routes, password toggle, signup wizard. |
-| **Dashboard** | Overview of totals (products, alerts, revenue), activity feed, low stock summary. |
-| **Inventory** | Data table with stock level, threshold, supplier, update dialog, CSV import (API ready for Supabase integration). |
-| **Appointments** | Calendar view (month/day), multi-slot appointments, create/edit modal, status badges. |
-| **Orders** | Order stats panel, table with status filter, update endpoint placeholder. |
-| **Admin Panel** | User list, invite modal, edit modal, payment management stub, role guard. |
-| **Global Components** | `PageHeader`, `Navbar`, shadcn/ui primitives, context hooks, layout wrappers. |
+| **Dashboard** | Overview of totals (products, alerts, revenue), activity feed, and past appointments requiring action (complete/cancel). |
+| **Inventory** | Product catalog with search and pagination, inventory table with stock levels, thresholds, and order amounts. Features update dialogs for quantity/threshold/order amount, manual deduction with reasons, and CSV import capability. |
+| **Procedures** | Create and manage dental procedures with associated inventory items and quantities. Complete procedures to automatically deduct inventory. |
+| **Appointments** | Calendar view (month/day), procedure-based appointment creation, multi-slot appointments, create/edit modal, status badges. Past appointments can be marked as completed or cancelled from the dashboard. |
+| **Orders & Cart** | Shopping cart system with sidebar, product catalog integration, checkout modal with payment method selection (COD, Credit/Debit Card), saved card management, and order tracking. |
+| **Payment Methods** | Stripe-like UI for adding credit/debit cards with live preview, validation, and secure storage. Cards can be saved and reused during checkout. |
+| **Admin Panel** | User list, invite modal, edit modal, payment management, role guard. |
+| **Global Components** | `PageHeader`, `Navbar` with profile dropdown, `CartProvider` for global cart state, shadcn/ui primitives, context hooks, layout wrappers. |
 
 ---
 
@@ -67,16 +70,18 @@ The application currently ships as a web experience (Next.js App Router) and lev
 │  Next.js 14 (App Router) + React 18 + TypeScript         │
 │  • Pages: landing, login, signup, dashboard, modules     │
 │  • Components: shadcn/ui based, Tailwind styled          │
-│  • State: React Context (AuthProvider)                   │
+│  • State: React Context (AuthProvider, CartProvider)     │
 │  • Auth guard: ProtectedRoute, AdminRoute                │
+│  • Cart: Global shopping cart state management           │
 └───────────────▲──────────────────────────────────────────┘
                 │supabase-js (JWT session, RPC, SQL)
 ┌───────────────┴──────────────────────────────────────────┐
 │                        Backend                           │
 │  Next.js API Routes (Node runtime)                       │
-│  • /api/inventory, /api/orders, /api/appointments…       │
-│  • Currently return mock data → migrating to SQL         │
-│  • Will execute raw SQL against Supabase Postgres        │
+│  • /api/inventory, /api/orders, /api/appointments        │
+│  • /api/products, /api/procedures, /api/dashboard        │
+│  • Currently use in-memory data stores                   │
+│  • Ready for migration to Supabase Postgres SQL          │
 └───────────────▲──────────────────────────────────────────┘
                 │Postgres connection string (no ORM)
 ┌───────────────┴──────────────────────────────────────────┐
@@ -150,10 +155,12 @@ The application currently ships as a web experience (Next.js App Router) and lev
 |------|------------|-------|
 | Framework | **Next.js 14** | App Router, data fetching, API routes |
 | Language | **TypeScript 5** | strict mode, incremental builds |
-| Styling | **Tailwind CSS 3** + shadcn/ui | design system + animations |
+| Styling | **Tailwind CSS 3** + shadcn/ui | design system + animations, responsive design |
 | Auth | **Supabase Auth** | email/password, JWT sessions, metadata roles |
 | Database | **Supabase Postgres** | pure SQL (no ORM), `supabase-js` client |
+| State Management | **React Context** | AuthProvider, CartProvider for global state |
 | Icons | **Lucide React** | consistent iconography |
+| Storage | **localStorage** | Cart persistence, saved payment methods |
 | Tooling | ESLint, Prettier, pnpm/npm scripts |
 | Deployment | Vercel (recommended) | zero-config Next.js hosting |
 
@@ -172,19 +179,26 @@ The application currently ships as a web experience (Next.js App Router) and lev
 
 ## API Surface
 
-> API routes currently return mocked responses while Supabase tables are being wired in. The interfaces are stable so migrating to real SQL responses will be seamless.
+> API routes currently use in-memory data stores for demonstration purposes. The interfaces are stable and ready for migration to Supabase Postgres.
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/dashboard` | GET | Dashboard metrics, low stock, recent activity. |
-| `/api/inventory` | GET | Inventory list (→ migrate to SQL query). |
-| `/api/inventory/update` | POST | Update quantity (→ integrate SQL `UPDATE`). |
-| `/api/appointments` | GET/POST | Appointment list & creation (→ SQL). |
-| `/api/appointments/complete` | POST | Mark appointment complete. |
-| `/api/orders` | GET | Orders list (→ SQL). |
-| `/api/orders/update` | POST | Update order status (→ SQL). |
-| `/api/users` | GET/POST | List + invite users (mocked). |
-| `/api/users/[id]` | PUT/DELETE | Update/delete user (mocked). |
+| `/api/dashboard` | GET | Dashboard metrics, recent activity, appointments data. |
+| `/api/inventory` | GET/POST | Inventory list and add new items to inventory. |
+| `/api/inventory/update` | POST | Update quantity, threshold, order amount, or deduct quantity with reason. |
+| `/api/inventory/import` | POST | CSV import for bulk inventory updates. |
+| `/api/products` | GET | Product catalog list with pagination support. |
+| `/api/products/[id]` | GET | Get single product details by ID. |
+| `/api/procedures` | GET/POST | Procedure list and create new procedures with inventory items. |
+| `/api/procedures/complete` | POST | Complete procedure and automatically deduct inventory items. |
+| `/api/appointments` | GET/POST | Appointment list and creation with procedure selection. |
+| `/api/appointments/[id]` | PUT/DELETE | Update appointment status (complete/cancel) or delete appointment. |
+| `/api/orders` | GET/POST | Orders list and create orders from cart checkout. |
+| `/api/orders/update` | POST | Update order status (delivered status updates inventory). |
+| `/api/users` | GET/POST | List and invite users. |
+| `/api/users/[id]` | PUT/DELETE | Update or delete user. |
+
+**Note**: Payment methods (credit cards) are stored in browser `localStorage` for demo purposes. In production, these should be stored securely via a payment processor API (e.g., Stripe).
 
 Supabase `supabase-js` can also query tables directly from client components if needed (e.g. realtime features).
 
@@ -260,27 +274,40 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 ├── app/
 │   ├── admin/               # Admin routes & layout
 │   ├── api/                 # Serverless API routes (Next.js)
+│   │   ├── appointments/    # Appointment CRUD endpoints
+│   │   ├── dashboard/       # Dashboard data endpoint
+│   │   ├── inventory/       # Inventory management endpoints
+│   │   ├── orders/          # Order management endpoints
+│   │   ├── procedures/      # Procedure CRUD endpoints
+│   │   ├── products/        # Product catalog endpoints
+│   │   └── users/           # User management endpoints
 │   ├── appointments/        # Appointments UI & layout
 │   ├── dashboard/           # Dashboard pages/components
 │   ├── inventory/           # Inventory management pages
 │   ├── login/               # Login page
-│   ├── orders/              # Orders management
+│   ├── orders/              # Orders management & cart
+│   ├── payment-methods/     # Payment method management
+│   ├── procedures/          # Procedures management
 │   ├── signup/              # Signup multi-step form
-│   └── layout.tsx           # Root layout
+│   └── layout.tsx           # Root layout with CartProvider
 ├── components/
 │   ├── admin/               # Admin shared UI
-│   ├── appointments/        # Calendar components
-│   ├── dashboard/           # Overview cards, alerts, activity feeds
-│   ├── inventory/           # Tables, CSV upload
-│   ├── orders/              # Order stats/table
-│   ├── ui/                  # shadcn/ui system
-│   └── page-header.tsx      # Shared header
+│   ├── appointments/        # Calendar components, appointment modals
+│   ├── dashboard/           # Overview cards, past appointments, activity feeds
+│   ├── inventory/           # Inventory table, product catalog, CSV upload
+│   ├── orders/              # Order stats, cart sidebar, checkout modal
+│   ├── procedures/          # Procedure table, create procedure modal
+│   ├── ui/                  # shadcn/ui component system
+│   ├── navbar.tsx           # Navigation with profile dropdown
+│   └── page-header.tsx      # Shared header component
 ├── hooks/                   # Reusable hooks (toast, mobile)
 ├── lib/
 │   ├── auth.tsx             # Auth context & guards
-│   └── supabase.ts          # Supabase client factory
-├── public/                  # Static assets
-└── styles/                  # Global CSS
+│   ├── cart-context.tsx     # Shopping cart context provider
+│   ├── supabase.ts          # Supabase client factory
+│   └── utils.ts             # Utility functions
+├── public/                  # Static assets (diagrams, images)
+└── app/globals.css          # Global CSS with animations
 ```
 
 ---
@@ -295,15 +322,61 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 
 ---
 
+## Key Features
+
+### 🛒 Shopping Cart System
+- Add products to cart from product catalog
+- Persistent cart state using localStorage
+- Cart sidebar with item management
+- Checkout with multiple payment options
+
+### 💳 Payment Methods
+- Stripe-like UI for adding credit/debit cards
+- Live card preview while entering details
+- Save and reuse cards for future orders
+- Support for Cash on Delivery (COD) and card payments
+
+### 📦 Product Catalog
+- Browse dental products with images
+- Search and pagination support
+- Product details modal with full information
+- Add products directly to inventory or cart
+
+### 🔧 Procedures Management
+- Create procedures with associated inventory items
+- Define quantities for each inventory item
+- Automatic inventory deduction upon procedure completion
+- Procedure-based appointment scheduling
+
+### 📅 Enhanced Appointments
+- Procedure-based appointment creation
+- Calendar view with month/day navigation
+- Past appointments management from dashboard
+- Mark appointments as completed or cancelled
+
+### 📊 Inventory Management
+- Update quantity, threshold, and order amount simultaneously
+- Manual inventory deduction with reason tracking
+- Low stock detection and alerts
+- CSV import for bulk updates
+
+### 👤 User Experience
+- Profile dropdown in navbar with logout and admin access
+- Responsive design for mobile and desktop
+- Loading states and animations
+- Toast notifications for user feedback
+
 ## Roadmap
 
-- [ ] Replace mock API responses with real SQL queries (inventory/orders/appointments/users).
-- [ ] Add reporting charts (Recharts integration).
-- [ ] Implement audit logging for admin actions.
-- [ ] Add two-factor authentication via Supabase OTP.
-- [ ] Build automated migration runner.
-- [ ] Integrate payment management (Stripe / Supabase Functions).
-- [ ] Expand test coverage (Playwright + Vitest).
+- [ ] Replace in-memory API responses with real Supabase SQL queries
+- [ ] Integrate Stripe or payment processor API for secure card storage
+- [ ] Add reporting charts (Recharts integration)
+- [ ] Implement audit logging for admin actions
+- [ ] Add two-factor authentication via Supabase OTP
+- [ ] Build automated migration runner
+- [ ] Add real-time inventory updates
+- [ ] Expand test coverage (Playwright + Vitest)
+- [ ] Add email notifications for low stock and order updates
 
 ---
 
