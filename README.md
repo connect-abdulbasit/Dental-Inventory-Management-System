@@ -1,11 +1,11 @@
 # 🦷 Dentura – Smart Dental Practice Management System
 
-A modern full‑stack web application for dental practices built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Supabase**. Dentura centralises inventory, appointments, orders, analytics, and user management so that dental teams can operate from a single, secure workspace.
+A modern full‑stack web application for dental practices built with **Next.js 14**, **TypeScript**, and **Tailwind CSS**. Dentura centralises inventory, appointments, orders, analytics, and user management so that dental teams can operate from a single, secure workspace. Features a comprehensive signup flow with role-based access control for clinics and suppliers.
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC)
-![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E)
+![JWT Auth](https://img.shields.io/badge/Auth-JWT-orange)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
 ---
@@ -41,7 +41,7 @@ Dentura targets day‑to‑day operations inside dental organisations:
 - **Dashboard**: Surface KPIs, show recent activity, and display past appointments requiring action.
 - **Admin**: Invite staff, assign roles, audit user activity, and manage payment settings.
 
-The application currently ships as a web experience (Next.js App Router) and leverages Supabase for authentication and persistence. Core flows (login, signup, user/session state) operate through Supabase JWT tokens and the `@supabase/supabase-js` client. API endpoints use in-memory data stores for demonstration purposes and are ready for migration to Supabase Postgres.
+The application currently ships as a web experience (Next.js App Router) with a custom JWT-based authentication system. The signup flow supports two distinct user types (clinic and supplier) with role-based onboarding. Clinic users can be invited to join existing clinics or create their own. API endpoints use in-memory data stores for demonstration purposes and are ready for migration to Supabase Postgres or other database solutions.
 
 ---
 
@@ -49,16 +49,18 @@ The application currently ships as a web experience (Next.js App Router) and lev
 
 | Module | Description |
 |--------|-------------|
-| **Landing** | Marketing-style page describing product value, CTA to register/sign in. |
-| **Authentication** | Supabase email/password auth with JWT sessions, role metadata, protected/admin routes, password toggle, signup wizard. |
-| **Dashboard** | Overview of totals (products, alerts, revenue), activity feed, and past appointments requiring action (complete/cancel). |
+| **Landing** | Marketing-style page describing product value, CTA to register/sign in. Auto-redirects logged-in users to appropriate dashboard based on role. |
+| **Authentication** | Multi-step signup flow with role selection (clinic/supplier), invitation system for clinic users, JWT-based sessions, protected/admin routes, password toggle. |
+| **Signup Flow** | Two-path signup system: Clinic users (with invitation check and onboarding) and Supplier users (with supplier onboarding). Session management via sessionStorage for pending signup data. |
+| **Invitation System** | Clinic admins can invite users by email. Invited users see invitation acceptance page with clinic details. Users can accept (join clinic as member) or decline (create own clinic). |
+| **Dashboard** | Overview of totals (products, alerts, revenue), activity feed, and past appointments requiring action (complete/cancel). Role-based access control. |
 | **Inventory** | Product catalog with search and pagination, inventory table with stock levels, thresholds, and order amounts. Features update dialogs for quantity/threshold/order amount, manual deduction with reasons, and CSV import capability. |
 | **Procedures** | Create and manage dental procedures with associated inventory items and quantities. Complete procedures to automatically deduct inventory. |
 | **Appointments** | Calendar view (month/day), procedure-based appointment creation, multi-slot appointments, create/edit modal, status badges. Past appointments can be marked as completed or cancelled from the dashboard. |
 | **Orders & Cart** | Shopping cart system with sidebar, product catalog integration, checkout modal with payment method selection (COD, Credit/Debit Card), saved card management, and order tracking. |
 | **Payment Methods** | Stripe-like UI for adding credit/debit cards with live preview, validation, and secure storage. Cards can be saved and reused during checkout. |
-| **Admin Panel** | User list, invite modal, edit modal, payment management, role guard. |
-| **Global Components** | `PageHeader`, `Navbar` with profile dropdown, `CartProvider` for global cart state, shadcn/ui primitives, context hooks, layout wrappers. |
+| **Admin Panel** | User list, invite modal (with role selection: clinic_admin, clinic_member), edit modal, payment management. Only accessible to `clinic_admin` role. |
+| **Global Components** | `PageHeader`, `Navbar` with profile dropdown (shows role badge), `CartProvider` for global cart state, shadcn/ui primitives, context hooks, layout wrappers. |
 
 ---
 
@@ -156,8 +158,8 @@ The application currently ships as a web experience (Next.js App Router) and lev
 | Framework | **Next.js 14** | App Router, data fetching, API routes |
 | Language | **TypeScript 5** | strict mode, incremental builds |
 | Styling | **Tailwind CSS 3** + shadcn/ui | design system + animations, responsive design |
-| Auth | **Supabase Auth** | email/password, JWT sessions, metadata roles |
-| Database | **Supabase Postgres** | pure SQL (no ORM), `supabase-js` client |
+| Auth | **JWT-based Auth** | Custom JWT implementation with bcrypt password hashing, role-based access control |
+| Database | **In-memory (Demo)** | Currently using in-memory data stores. Ready for migration to Supabase Postgres or other database |
 | State Management | **React Context** | AuthProvider, CartProvider for global state |
 | Icons | **Lucide React** | consistent iconography |
 | Storage | **localStorage** | Cart persistence, saved payment methods |
@@ -168,12 +170,48 @@ The application currently ships as a web experience (Next.js App Router) and lev
 
 ## Authentication & Authorization
 
-- **Supabase Client (`lib/supabase.ts`)** – uses public anon key for browser operations (auth, protected routes).
-- **Auth Context (`lib/auth.tsx`)** – manages session state, login, signup, logout, role extraction.
-- **Role Metadata** – stored in Supabase user metadata. Supported roles: `admin`, `member`, `dentist`, `hygienist`, `assistant`, `office_manager`, `owner`.
+- **Auth Context (`lib/auth.tsx`)** – manages session state, login, signup, logout, role extraction using JWT tokens stored in cookies.
+- **User Roles** – Three distinct role types with clear permissions:
+  - `clinic_admin` – Clinic Administrator with full system access, user management, and admin panel access
+  - `clinic_member` – Clinic staff member with basic access to inventory, appointments, and orders
+  - `supplier` – Supplier user with access to supplier portal
 - **Route Guards**:
-  - `ProtectedRoute` redirects unauthenticated users to `/login`.
-  - `AdminRoute` ensures the current user’s role is `admin`.
+  - `ProtectedRoute` redirects unauthenticated users to `/login` and enforces role-based routing (suppliers vs clinic users)
+  - `AdminRoute` ensures the current user's role is `clinic_admin` for admin-only pages
+- **Session Management** – JWT tokens stored in HTTP-only cookies, user data persisted in localStorage for client-side access
+
+### Signup Flow
+
+The application supports two distinct user types with different onboarding flows:
+
+#### 1. Clinic Users
+- **Initial Signup**: Email, phone number, password, and role selection
+- **Invitation Check**: System checks if the user has been invited to join an existing clinic
+  - **If Invited**: User sees invitation acceptance page with clinic name and inviter details
+    - **Accept**: User joins the clinic as `clinic_member` and is redirected to dashboard
+    - **Decline**: User creates their own clinic and proceeds to clinic onboarding
+  - **If Not Invited**: User proceeds directly to clinic onboarding
+- **Clinic Onboarding**: 
+  - Clinic details (name, address, contact information)
+  - Payment information (card details, billing address)
+  - User receives `clinic_admin` role (clinic owner)
+
+#### 2. Supplier Users
+- **Initial Signup**: Email, phone number, password, and role selection
+- **Supplier Onboarding**: Store name, address, contact information, and business details
+- **User receives `supplier` role** and is redirected to supplier dashboard
+
+### Test Credentials
+
+For development and testing, the following accounts are available:
+
+| Role | Email | Password | Access Level |
+|------|-------|----------|--------------|
+| **Clinic Administrator** | `admin@example.com` | `admin123` | Full system access, user management, admin panel |
+| **Clinic Member** | `member@example.com` | `member123` | Basic access to inventory, appointments, and orders |
+| **Supplier** | `supplier@example.com` | `supplier123` | Supplier portal access |
+
+> **Note**: These are test accounts for development purposes. In production, users will create accounts through the signup flow.
 
 ---
 
@@ -195,20 +233,51 @@ The application currently ships as a web experience (Next.js App Router) and lev
 | `/api/appointments/[id]` | PUT/DELETE | Update appointment status (complete/cancel) or delete appointment. |
 | `/api/orders` | GET/POST | Orders list and create orders from cart checkout. |
 | `/api/orders/update` | POST | Update order status (delivered status updates inventory). |
-| `/api/users` | GET/POST | List and invite users. |
+| `/api/users` | GET/POST | List and invite users (clinic_admin only). |
 | `/api/users/[id]` | PUT/DELETE | Update or delete user. |
+| `/api/signup` | POST | Create new user account (clinic or supplier). |
+| `/api/signup/check-invitation` | POST | Check if email has pending clinic invitation. |
+| `/api/signup/accept-invitation` | POST | Accept clinic invitation and link user to clinic. |
+| `/api/signup/decline-invitation` | POST | Decline clinic invitation (marks as cancelled). |
+| `/api/signup/clinic-onboarding` | POST | Save clinic details and payment information. |
+| `/api/signup/supplier-onboarding` | POST | Save supplier details and business information. |
+| `/api/login` | POST | Authenticate user and return JWT token. |
+| `/api/logout` | POST | Clear session and logout user. |
 
 **Note**: Payment methods (credit cards) are stored in browser `localStorage` for demo purposes. In production, these should be stored securely via a payment processor API (e.g., Stripe).
-
-Supabase `supabase-js` can also query tables directly from client components if needed (e.g. realtime features).
 
 ---
 
 ## Database & Migrations
 
-1. **Provision Supabase** – create a project at [supabase.com](https://supabase.com/).
+Currently, the application uses **in-memory data stores** for demonstration purposes. All API endpoints are ready for migration to a persistent database.
+
+### Future Database Setup
+
+When migrating to a production database (Supabase Postgres, PostgreSQL, etc.):
+
+1. **Provision Database** – create a project at [supabase.com](https://supabase.com/) or set up your own PostgreSQL instance.
 2. **Track SQL** – store migration files in `database/migrations/*.sql`. Example:
    ```sql
+   CREATE TABLE users (
+     id BIGSERIAL PRIMARY KEY,
+     email TEXT UNIQUE NOT NULL,
+     password TEXT NOT NULL,
+     name TEXT NOT NULL,
+     role TEXT NOT NULL CHECK (role IN ('clinic_admin', 'clinic_member', 'supplier')),
+     clinic_id BIGINT REFERENCES clinics(id),
+     created_at TIMESTAMPTZ DEFAULT NOW()
+   );
+
+   CREATE TABLE clinics (
+     id BIGSERIAL PRIMARY KEY,
+     name TEXT NOT NULL,
+     address TEXT,
+     phone TEXT,
+     email TEXT,
+     created_at TIMESTAMPTZ DEFAULT NOW()
+   );
+
    CREATE TABLE inventory_items (
      id BIGSERIAL PRIMARY KEY,
      name TEXT NOT NULL,
@@ -220,11 +289,11 @@ Supabase `supabase-js` can also query tables directly from client components if 
    );
    ```
 3. **Apply migrations**  
-   - Web SQL editor in Supabase dashboard, or  
-   - CLI/psql: `psql "$SUPABASE_DB_URL" -f database/migrations/001_init.sql`
+   - Web SQL editor in database dashboard, or  
+   - CLI/psql: `psql "$DATABASE_URL" -f database/migrations/001_init.sql`
 4. **Seed data** (optional) with pure SQL inserts.
 
-> No ORM is used. All persistence is handled via SQL statements called through Supabase’s REST/RPC layer or `supabase-js`.
+> The current implementation is database-agnostic and can be adapted to any SQL database or ORM of your choice.
 
 ---
 
@@ -233,7 +302,7 @@ Supabase `supabase-js` can also query tables directly from client components if 
 ### Prerequisites
 - Node.js 18+
 - pnpm, npm, or yarn
-- Supabase account (Postgres DB)
+- (Optional) Database setup for production (Supabase Postgres or other)
 
 ### Installation
 
@@ -255,15 +324,23 @@ Visit `http://localhost:3000`.
 
 ## Environment Variables
 
-Define these in `.env.local` (never commit this file):
+Currently, the application uses in-memory data stores and JWT-based authentication, so no environment variables are required for basic functionality.
+
+For production deployment with a database, define these in `.env.local` (never commit this file):
 
 ```
+# JWT Secret (required for production)
+JWT_SECRET=your-secret-key-here
+
+# Database (optional, for future migration)
+DATABASE_URL=postgresql://user:password@host:5432/database
+# OR
 NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
-SUPABASE_DB_URL=postgresql://postgres:password@db.xxx.supabase.co:5432/postgres  # optional for server-side SQL
+SUPABASE_DB_URL=postgresql://postgres:password@db.xxx.supabase.co:5432/postgres
 ```
 
-If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_ROLE_KEY` **outside** the browser (CLI, Node scripts).
+> **Note**: The JWT secret should be a strong, random string. Generate one using: `openssl rand -base64 32`
 
 ---
 
@@ -272,14 +349,17 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 ```
 .
 ├── app/
-│   ├── admin/               # Admin routes & layout
+│   ├── admin/               # Admin routes & layout (clinic_admin only)
 │   ├── api/                 # Serverless API routes (Next.js)
 │   │   ├── appointments/    # Appointment CRUD endpoints
 │   │   ├── dashboard/       # Dashboard data endpoint
 │   │   ├── inventory/       # Inventory management endpoints
+│   │   ├── login/           # Login endpoint
+│   │   ├── logout/          # Logout endpoint
 │   │   ├── orders/          # Order management endpoints
 │   │   ├── procedures/      # Procedure CRUD endpoints
 │   │   ├── products/        # Product catalog endpoints
+│   │   ├── signup/          # Signup endpoints (check-invitation, accept/decline, onboarding)
 │   │   └── users/           # User management endpoints
 │   ├── appointments/        # Appointments UI & layout
 │   ├── dashboard/           # Dashboard pages/components
@@ -288,7 +368,10 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 │   ├── orders/              # Orders management & cart
 │   ├── payment-methods/     # Payment method management
 │   ├── procedures/          # Procedures management
-│   ├── signup/              # Signup multi-step form
+│   ├── signup/              # Signup flow pages
+│   │   ├── invitation/      # Invitation acceptance/decline page
+│   │   ├── clinic-onboarding/  # Clinic onboarding form
+│   │   └── supplier-onboarding/ # Supplier onboarding form
 │   └── layout.tsx           # Root layout with CartProvider
 ├── components/
 │   ├── admin/               # Admin shared UI
@@ -302,10 +385,14 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 │   └── page-header.tsx      # Shared header component
 ├── hooks/                   # Reusable hooks (toast, mobile)
 ├── lib/
-│   ├── auth.tsx             # Auth context & guards
+│   ├── auth.tsx             # Auth context & guards (ProtectedRoute, AdminRoute)
 │   ├── cart-context.tsx     # Shopping cart context provider
-│   ├── supabase.ts          # Supabase client factory
+│   ├── jwt.ts               # JWT token signing and verification
 │   └── utils.ts             # Utility functions
+├── data/
+│   └── users.ts             # User data store (in-memory, demo)
+├── scripts/
+│   └── password.js          # Password hashing utility script
 ├── public/                  # Static assets (diagrams, images)
 └── app/globals.css          # Global CSS with animations
 ```
@@ -314,11 +401,12 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 
 ## Development Workflow
 
-1. **Auth** – Use Supabase dashboard to invite users or test signup locally.
-2. **Database changes** – create `.sql` migration, run it against Supabase, commit file.
-3. **API updates** – adjust `/app/api/*` to query Supabase via SQL or `supabase-js`.
-4. **Testing** – manual UI testing + Supabase auth simulation (automated tests TBD).
-5. **Deployment** – push to GitHub → Vercel auto-build (ensure env vars configured).
+1. **Auth** – Use test credentials (see [Test Credentials](#test-credentials)) or create new accounts through the signup flow. Clinic admins can invite users through the admin panel.
+2. **Password Hashing** – Use `node scripts/password.js` to generate bcrypt hashes for new test users.
+3. **Database changes** – Currently using in-memory stores. For production, create `.sql` migration files and run against your database.
+4. **API updates** – Adjust `/app/api/*` routes. Currently using in-memory data stores, ready for database migration.
+5. **Testing** – Manual UI testing with different roles. Test the complete signup flow for both clinic and supplier users.
+6. **Deployment** – Push to GitHub → Vercel auto-build (ensure env vars configured).
 
 ---
 
@@ -368,15 +456,18 @@ If you need service-role operations (admin scripts only), use `SUPABASE_SERVICE_
 
 ## Roadmap
 
-- [ ] Replace in-memory API responses with real Supabase SQL queries
+- [ ] Replace in-memory API responses with real database queries (Supabase Postgres or other)
 - [ ] Integrate Stripe or payment processor API for secure card storage
 - [ ] Add reporting charts (Recharts integration)
 - [ ] Implement audit logging for admin actions
-- [ ] Add two-factor authentication via Supabase OTP
+- [ ] Add two-factor authentication (2FA)
 - [ ] Build automated migration runner
 - [ ] Add real-time inventory updates
 - [ ] Expand test coverage (Playwright + Vitest)
-- [ ] Add email notifications for low stock and order updates
+- [ ] Add email notifications for low stock, order updates, and invitations
+- [ ] Supplier portal with order management and product catalog
+- [ ] Enhanced invitation system with email notifications
+- [ ] Multi-clinic support for clinic admins
 
 ---
 
