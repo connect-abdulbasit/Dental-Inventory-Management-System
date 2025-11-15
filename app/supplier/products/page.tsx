@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { AddProductModal } from "@/components/supplier/add-product-modal"
 import { Plus, Search, Edit, Trash2, RefreshCw } from "lucide-react"
 
 interface Product {
@@ -24,6 +25,7 @@ export default function SupplierProductsPage() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   const fetchProducts = async () => {
     setIsLoading(true)
@@ -106,7 +108,7 @@ export default function SupplierProductsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <PageHeader title="Products" description="Manage your product catalog" />
-        <Button>
+        <Button onClick={() => setIsAddModalOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Add Product
         </Button>
@@ -183,6 +185,12 @@ export default function SupplierProductsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <AddProductModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchProducts}
+      />
     </div>
   )
 }

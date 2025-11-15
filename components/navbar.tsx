@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ProfileModal } from "@/components/profile/profile-modal"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, Package, Calendar, ShoppingCart, LogOut, Menu, X, Settings, ChevronDown, ClipboardList, Store } from "lucide-react"
+import { LayoutDashboard, Package, Calendar, ShoppingCart, LogOut, Menu, X, Settings, ChevronDown, ClipboardList, Store, User } from "lucide-react"
 
 const clinicNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -34,6 +35,7 @@ export function Navbar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   
   // Determine navigation based on user role
   const isSupplier = user?.role === "supplier"
@@ -128,17 +130,25 @@ export function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setIsProfileModalOpen(true)}
+                    className="cursor-pointer"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
                   {user.role === "clinic_admin" && (
                     <>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/admin" className="cursor-pointer w-full">
                           <Settings className="mr-2 h-4 w-4" />
                           Admin Panel
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                     </>
                   )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={handleLogout} 
                     className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
@@ -211,6 +221,16 @@ export function Navbar() {
             })}
             {user && (
               <>
+                <button
+                  onClick={() => {
+                    setIsProfileModalOpen(true)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:text-white hover:bg-white/10 transition-colors w-full text-left"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Profile</span>
+                </button>
                 {user.role === "clinic_admin" && (
                   <Link
                     href="/admin"
@@ -236,6 +256,11 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)}
+      />
     </nav>
   )
 }
