@@ -1,12 +1,33 @@
+"use client"
+
 import type React from "react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
-import { ProtectedRoute } from "@/lib/auth"
+import { ProtectedRoute, useAuth } from "@/lib/auth"
 
 export default function OrdersLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
+  const { user, isLoading } = useAuth()
+
+  useEffect(() => {
+    if (!isLoading && user?.role === "supplier") {
+      router.push("/supplier/orders")
+    }
+  }, [user, isLoading, router])
+
+  if (isLoading || user?.role === "supplier") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">

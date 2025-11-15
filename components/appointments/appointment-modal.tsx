@@ -18,6 +18,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar, Clock, User, Phone, Mail, FileText, CheckCircle, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
+interface Procedure {
+  id: number
+  name: string
+  items: Array<{
+    inventoryItemId: number
+    inventoryItemName: string
+    quantity: number
+  }>
+}
+
 interface Appointment {
   id?: number
   patientName: string
@@ -26,7 +36,9 @@ interface Appointment {
   date: string
   time: string
   duration: number
-  type: string
+  procedureId?: number
+  procedureName?: string
+  type?: string // Keep for backward compatibility
   status: string
   notes: string
 }
@@ -47,12 +59,39 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
     date: "",
     time: "",
     duration: 60,
-    type: "Cleaning",
+    procedureId: undefined,
+    procedureName: "",
     status: "scheduled",
     notes: "",
   })
+  const [procedures, setProcedures] = useState<Procedure[]>([])
+  const [isLoadingProcedures, setIsLoadingProcedures] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+
+  const fetchProcedures = async () => {
+    setIsLoadingProcedures(true)
+    try {
+      const response = await fetch("/api/procedures")
+      const data = await response.json()
+      setProcedures(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load procedures.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoadingProcedures(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchProcedures()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   useEffect(() => {
     if (appointment) {
@@ -65,7 +104,8 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
         date: "",
         time: "",
         duration: 60,
-        type: "Cleaning",
+        procedureId: undefined,
+        procedureName: "",
         status: "scheduled",
         notes: "",
       })
@@ -73,6 +113,16 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
   }, [appointment])
 
   const handleSave = async () => {
+    // Validation
+    if (!formData.procedureId) {
+      toast({
+        title: "Validation error",
+        description: "Please select a procedure for this appointment.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
     try {
       let response
@@ -80,13 +130,20 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
         response = await fetch("/api/appointments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            // Keep type for backward compatibility, but use procedureName
+            type: formData.procedureName || formData.type,
+          }),
         })
       } else if (mode === "edit" && appointment?.id) {
         response = await fetch(`/api/appointments/${appointment.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            type: formData.procedureName || formData.type,
+          }),
         })
       }
 
@@ -99,12 +156,14 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
           })
           onSave()
           onClose()
+        } else {
+          throw new Error(result.error || "Failed to save appointment")
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to save appointment",
+        description: error.message || "Failed to save appointment",
         variant: "destructive",
       })
     } finally {
@@ -256,24 +315,43 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
               />
             </div>
             <div>
-              <Label htmlFor="type">Appointment Type</Label>
+              <Label htmlFor="procedureId">
+                Procedure <span className="text-red-500">*</span>
+              </Label>
               <Select
-                value={formData.type}
-                onValueChange={(value) => setFormData({ ...formData, type: value })}
-                disabled={mode === "view"}
+                value={formData.procedureId?.toString() || ""}
+                onValueChange={(value) => {
+                  const selectedProcedure = procedures.find((p) => p.id === Number.parseInt(value))
+                  setFormData({
+                    ...formData,
+                    procedureId: Number.parseInt(value),
+                    procedureName: selectedProcedure?.name || "",
+                  })
+                }}
+                disabled={mode === "view" || isLoadingProcedures}
               >
                 <SelectTrigger className="mt-1">
-                  <SelectValue />
+                  <SelectValue placeholder={isLoadingProcedures ? "Loading..." : "Select procedure"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Cleaning">Cleaning</SelectItem>
-                  <SelectItem value="Consultation">Consultation</SelectItem>
-                  <SelectItem value="Filling">Filling</SelectItem>
-                  <SelectItem value="Root Canal">Root Canal</SelectItem>
-                  <SelectItem value="Surgery">Surgery</SelectItem>
-                  <SelectItem value="Checkup">Checkup</SelectItem>
+                  {procedures.length === 0 ? (
+                    <SelectItem value="none" disabled>
+                      {isLoadingProcedures ? "Loading procedures..." : "No procedures available"}
+                    </SelectItem>
+                  ) : (
+                    procedures.map((procedure) => (
+                      <SelectItem key={procedure.id} value={procedure.id.toString()}>
+                        {procedure.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
+              {procedures.length === 0 && !isLoadingProcedures && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Create procedures in the Procedures section first
+                </p>
+              )}
             </div>
           </div>
 
@@ -341,10 +419,23 @@ export function AppointmentModal({ appointment, isOpen, onClose, onSave, mode }:
           <div className="flex space-x-2">
             {mode === "view" && appointment?.status === "scheduled" && (
               <>
-                <Button variant="outline" onClick={handleComplete} disabled={isLoading}>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Complete
-                </Button>
+                {(() => {
+                  const appointmentDate = appointment.date && appointment.time 
+                    ? new Date(`${appointment.date}T${appointment.time}`)
+                    : null
+                  const isPast = appointmentDate ? appointmentDate < new Date() : false
+                  return (
+                    <Button 
+                      variant="outline" 
+                      onClick={handleComplete} 
+                      disabled={isLoading || !isPast}
+                      title={!isPast ? "Cannot mark future appointments as completed" : ""}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Complete
+                    </Button>
+                  )
+                })()}
                 <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete

@@ -23,12 +23,12 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
 
-    const success = await login(email, password)
+    const { success, error: loginError } = await login(email, password)
 
     if (success) {
       router.push("/dashboard")
     } else {
-      setError("Invalid email or password. Please try again.")
+      setError(loginError ?? "Invalid email or password. Please try again.")
     }
   }
 

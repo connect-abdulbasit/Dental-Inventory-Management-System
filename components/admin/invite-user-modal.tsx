@@ -44,7 +44,7 @@ export function InviteUserModal({ open, onOpenChange, onInvite }: InviteUserModa
     // Reset form
     setEmail("")
     setName("")
-    setRole("member")
+    setRole("clinic_member")
   }
 
   return (
@@ -104,21 +104,15 @@ export function InviteUserModal({ open, onOpenChange, onInvite }: InviteUserModa
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="member">
+                  <SelectItem value="clinic_member">
                     <div className="flex flex-col">
-                      <span className="font-medium">Member</span>
-                      <span className="text-xs text-gray-500">Basic access to inventory and orders</span>
+                      <span className="font-medium">Clinic Member</span>
+                      <span className="text-xs text-gray-500">Basic access to inventory, appointments, and orders</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="dentist">
+                  <SelectItem value="clinic_admin">
                     <div className="flex flex-col">
-                      <span className="font-medium">Dentist</span>
-                      <span className="text-xs text-gray-500">Full access to patient records and appointments</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="admin">
-                    <div className="flex flex-col">
-                      <span className="font-medium">Admin</span>
+                      <span className="font-medium">Clinic Administrator</span>
                       <span className="text-xs text-gray-500">Complete system access and user management</span>
                     </div>
                   </SelectItem>

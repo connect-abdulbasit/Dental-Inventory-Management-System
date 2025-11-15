@@ -14,7 +14,9 @@ interface Appointment {
   date: string
   time: string
   duration: number
-  type: string
+  type?: string // Keep for backward compatibility
+  procedureName?: string
+  procedureId?: number
   status: string
   notes: string
 }
@@ -119,6 +121,47 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
     })
   }
 
+  const navigateWeek = (direction: "prev" | "next") => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev)
+      if (direction === "prev") {
+        newDate.setDate(prev.getDate() - 7)
+      } else {
+        newDate.setDate(prev.getDate() + 7)
+      }
+      return newDate
+    })
+  }
+
+  const navigateDay = (direction: "prev" | "next") => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev)
+      if (direction === "prev") {
+        newDate.setDate(prev.getDate() - 1)
+      } else {
+        newDate.setDate(prev.getDate() + 1)
+      }
+      // Update selectedDay to match the new date
+      setSelectedDay(newDate.getDate())
+      return newDate
+    })
+  }
+
+  // Get the start of the week (Sunday)
+  const getStartOfWeek = (date: Date) => {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = d.getDate() - day
+    return new Date(d.setDate(diff))
+  }
+
+  // Get appointments for a specific date string
+  const getAppointmentsForDateStr = (dateStr: string) => {
+    return appointments
+      .filter((apt) => apt.date === dateStr)
+      .sort((a, b) => a.time.localeCompare(b.time))
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -134,9 +177,11 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
     }
   }
 
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
+  const getProcedureColor = (procedureName?: string, type?: string) => {
+    const name = (procedureName || type || "").toLowerCase()
+    switch (name) {
       case "cleaning":
+      case "routine cleaning":
         return "bg-blue-50 text-blue-700"
       case "checkup":
         return "bg-green-50 text-green-700"
@@ -144,9 +189,16 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
         return "bg-orange-50 text-orange-700"
       case "emergency":
         return "bg-red-50 text-red-700"
+      case "tooth filling":
+      case "filling":
+        return "bg-purple-50 text-purple-700"
       default:
         return "bg-gray-50 text-gray-700"
     }
+  }
+
+  const getDisplayName = (appointment: Appointment) => {
+    return appointment.procedureName || appointment.type || "Procedure"
   }
 
   const daysInMonth = getDaysInMonth(currentDate)
@@ -156,14 +208,20 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
 
   // Day View Component
   const DayView = () => {
-    if (selectedDay === null) return null
-
-    const dayAppointments = getAppointmentsForSelectedDay()
+    // If no day is selected, use today's date
+    const dayToShow = selectedDay !== null ? selectedDay : currentDate.getDate()
+    const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayToShow)
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    const dayAppointments = getAppointmentsForDateStr(dateStr)
     const timeSlots = generateTimeSlots()
-    const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDay)
     const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" })
     const dayDate = selectedDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
-    const maxConcurrent = getMaxConcurrentAppointments()
+    
+    const timeSlotCounts: { [key: string]: number } = {}
+    dayAppointments.forEach(apt => {
+      timeSlotCounts[apt.time] = (timeSlotCounts[apt.time] || 0) + 1
+    })
+    const maxConcurrent = Math.max(...Object.values(timeSlotCounts), 1)
 
     return (
       <Card>
@@ -179,17 +237,25 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
                 {maxConcurrent > 1 && ` • Up to ${maxConcurrent} concurrent appointments`}
               </p>
             </div>
-            <Button variant="outline" onClick={() => setViewMode("month")}>
-              Back to Month
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigateDay("prev")}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigateDay("next")}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" onClick={() => setViewMode("month")}>
+                Back to Month
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           {/* Time Slots */}
           <div className="space-y-2">
             {timeSlots.map((timeSlot) => {
-              const appointments = getAppointmentsForTimeSlot(timeSlot)
-              const isOccupied = isTimeSlotOccupied(timeSlot)
+              const appointments = dayAppointments.filter(apt => apt.time === timeSlot)
+              const isOccupied = appointments.length > 0
               
               return (
                 <div
@@ -220,10 +286,10 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
                               </div>
                             </div>
                             <div className="text-sm text-gray-600 mb-2">
-                              {appointment.type}
+                              {getDisplayName(appointment)}
                             </div>
                             <div className="flex items-center justify-between">
-                              <Badge className={`text-xs ${getTypeColor(appointment.type)}`}>
+                              <Badge className={`text-xs ${getProcedureColor(appointment.procedureName, appointment.type)}`}>
                                 {appointment.duration}min
                               </Badge>
                               <Badge className={`text-xs ${getStatusColor(appointment.status)}`}>
@@ -275,18 +341,49 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
                 <Button
                   variant={viewMode === "day" ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => setViewMode("day")}
+                  onClick={() => {
+                    // If switching to day view and no day is selected, set to today
+                    if (selectedDay === null) {
+                      const today = new Date()
+                      setCurrentDate(today)
+                      setSelectedDay(today.getDate())
+                    }
+                    setViewMode("day")
+                  }}
                   className="h-8"
                 >
                   Day
                 </Button>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => navigateMonth("prev")}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    if (viewMode === "week") navigateWeek("prev")
+                    else if (viewMode === "day") navigateDay("prev")
+                    else navigateMonth("prev")
+                  }}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-lg font-medium min-w-[200px] text-center">{formatDate(currentDate)}</span>
-                <Button variant="outline" size="sm" onClick={() => navigateMonth("next")}>
+                <span className="text-lg font-medium min-w-[200px] text-center">
+                  {viewMode === "day" 
+                    ? currentDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+                    : viewMode === "week"
+                    ? `${getStartOfWeek(currentDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(getStartOfWeek(currentDate).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                    : formatDate(currentDate)
+                  }
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    if (viewMode === "week") navigateWeek("next")
+                    else if (viewMode === "day") navigateDay("next")
+                    else navigateMonth("next")
+                  }}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -294,6 +391,97 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
           </div>
         </CardHeader>
       </Card>
+
+      {/* Week View */}
+      {viewMode === "week" && (() => {
+        const weekStart = getStartOfWeek(currentDate)
+        const weekDays = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(weekStart)
+          date.setDate(weekStart.getDate() + i)
+          return date
+        })
+
+        return (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="h-5 w-5" />
+                  <span>
+                    {weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - 
+                    {weekDays[6].toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => navigateWeek("prev")}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => navigateWeek("next")}>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" onClick={() => setViewMode("month")}>
+                    Back to Month
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-7 gap-4">
+                {weekDays.map((date, index) => {
+                  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+                  const dayAppointments = getAppointmentsForDateStr(dateStr)
+                  const isToday = date.toDateString() === new Date().toDateString()
+                  const dayName = date.toLocaleDateString("en-US", { weekday: "short" })
+                  
+                  return (
+                    <div
+                      key={index}
+                      className={`border rounded-lg p-3 cursor-pointer hover:shadow-md transition-all ${isToday ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"}`}
+                      onClick={() => {
+                        setCurrentDate(date)
+                        setSelectedDay(date.getDate())
+                        setViewMode("day")
+                      }}
+                    >
+                      <div className="text-center mb-2">
+                        <div className="text-xs text-gray-500 mb-1">{dayName}</div>
+                        <div className={`text-lg font-semibold ${isToday ? "text-blue-600" : "text-gray-900"}`}>
+                          {date.getDate()}
+                        </div>
+                      </div>
+                      <div className="space-y-1 max-h-64 overflow-y-auto">
+                        {dayAppointments.map((appointment) => (
+                          <div
+                            key={appointment.id}
+                            className={`text-xs p-2 rounded cursor-pointer hover:shadow-sm transition-all border ${getStatusColor(appointment.status)}`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onAppointmentClick(appointment)
+                            }}
+                          >
+                            <div className="font-medium truncate mb-1">
+                              {formatTime(appointment.time)}
+                            </div>
+                            <div className="truncate font-semibold">
+                              {appointment.patientName}
+                            </div>
+                            <div className="truncate text-gray-600">
+                              {getDisplayName(appointment)}
+                            </div>
+                          </div>
+                        ))}
+                        {dayAppointments.length === 0 && (
+                          <div className="text-xs text-gray-400 text-center py-2">No appointments</div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })()}
 
       {/* Day View */}
       {viewMode === "day" && <DayView />}
@@ -350,8 +538,8 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
                             <span className="truncate font-medium">{appointment.patientName}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <Badge className={`text-xs ${getTypeColor(appointment.type)}`}>
-                              {appointment.type}
+                            <Badge className={`text-xs ${getProcedureColor(appointment.procedureName, appointment.type)}`}>
+                              {getDisplayName(appointment)}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               {appointment.duration}min
@@ -390,12 +578,12 @@ export function CalendarView({ appointments, onAppointmentClick }: CalendarViewP
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-700">Types:</span>
+              <span className="text-sm font-medium text-gray-700">Procedures:</span>
               <div className="flex items-center gap-2">
-                <Badge className="bg-blue-50 text-blue-700">Cleaning</Badge>
-                <Badge className="bg-green-50 text-green-700">Checkup</Badge>
+                <Badge className="bg-blue-50 text-blue-700">Routine Cleaning</Badge>
+                <Badge className="bg-purple-50 text-purple-700">Tooth Filling</Badge>
                 <Badge className="bg-orange-50 text-orange-700">Treatment</Badge>
-                <Badge className="bg-red-50 text-red-700">Emergency</Badge>
+                <Badge className="bg-gray-50 text-gray-700">Other</Badge>
               </div>
             </div>
           </div>
