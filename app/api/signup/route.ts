@@ -61,7 +61,9 @@ export async function POST(req: Request) {
 
     users.push(newUser)
 
-    // In production, save to database here
+    // Determine role based on userType
+    // Suppliers get "supplier" role, clinic users get "clinic_admin" role (they are the clinic owner)
+    const role = userType === "supplier" ? "supplier" : "clinic_admin"
 
     return NextResponse.json({
       success: true,
@@ -71,6 +73,7 @@ export async function POST(req: Request) {
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         userType: newUser.userType,
+        role: role,
       },
     })
   } catch (error) {

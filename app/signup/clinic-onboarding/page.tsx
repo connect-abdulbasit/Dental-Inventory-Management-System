@@ -145,6 +145,20 @@ export default function ClinicOnboardingPage() {
         return
       }
 
+      // Get user data from sessionStorage to set up session
+      const pendingSignup = sessionStorage.getItem("pending_signup")
+      if (pendingSignup) {
+        const userData = JSON.parse(pendingSignup)
+        // Set user in localStorage for session
+        const user = {
+          id: Date.now().toString(),
+          email: userData.email,
+          name: `${userData.firstName} ${userData.lastName}`,
+          role: "clinic_admin", // Clinic owners get clinic_admin role
+        }
+        localStorage.setItem("cavity_user", JSON.stringify(user))
+      }
+
       // Clear pending signup data
       sessionStorage.removeItem("pending_signup")
 

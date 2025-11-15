@@ -5,14 +5,9 @@ import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
 type UserRole =
-  | "admin"
-  | "staff"
-  | "member"
-  | "dentist"
-  | "hygienist"
-  | "assistant"
-  | "office_manager"
-  | "owner"
+  | "clinic_admin"      // Clinic administrator - full access to clinic management
+  | "clinic_member"     // Clinic staff member - basic access to clinic features
+  | "supplier"          // Supplier - access to supplier portal
 
 interface User {
   id: string
@@ -153,6 +148,19 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoading && !user && pathname !== "/login" && pathname !== "/signup") {
       router.push("/login")
+      return
+    }
+
+    // Redirect suppliers away from clinic pages
+    if (user?.role === "supplier" && !pathname.startsWith("/supplier") && pathname !== "/login" && pathname !== "/signup") {
+      router.push("/supplier/dashboard")
+      return
+    }
+
+    // Redirect clinic users (clinic_admin, clinic_member) away from supplier pages
+    if (user && (user.role === "clinic_admin" || user.role === "clinic_member") && pathname.startsWith("/supplier")) {
+      router.push("/dashboard")
+      return
     }
   }, [user, isLoading, router, pathname])
 
@@ -171,13 +179,13 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-// Admin route protection component
+// Admin route protection component - only clinic admins can access
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "admin")) {
+    if (!isLoading && (!user || user.role !== "clinic_admin")) {
       router.push("/dashboard")
     }
   }, [user, isLoading, router])
@@ -190,7 +198,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== "clinic_admin") {
     return null
   }
 

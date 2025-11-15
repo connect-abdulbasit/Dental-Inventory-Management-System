@@ -5,5 +5,8 @@ async function hash(pw) {
   console.log(pw, "=>", hash);
 }
 
+// Generate hashes for test passwords
 hash("password123");
-hash("secret456");
+hash("admin123");
+hash("member123");
+hash("supplier123");

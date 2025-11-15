@@ -84,12 +84,25 @@ export default function SupplierOnboardingPage() {
         return
       }
 
+      // Get user data from sessionStorage to set up session
+      const pendingSignup = sessionStorage.getItem("pending_signup")
+      if (pendingSignup) {
+        const userData = JSON.parse(pendingSignup)
+        // Set user in localStorage for session
+        const user = {
+          id: Date.now().toString(),
+          email: userData.email,
+          name: `${userData.firstName} ${userData.lastName}`,
+          role: "supplier",
+        }
+        localStorage.setItem("cavity_user", JSON.stringify(user))
+      }
+
       // Clear pending signup data
       sessionStorage.removeItem("pending_signup")
 
-      // Login the user and redirect to dashboard
-      // In production, you would set up the session here
-      router.push("/dashboard")
+      // Redirect to supplier dashboard
+      router.push("/supplier/dashboard")
     } catch (err) {
       setError("Failed to complete onboarding. Please try again.")
     } finally {

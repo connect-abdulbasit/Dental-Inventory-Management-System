@@ -72,6 +72,15 @@ export default function InvitationAcceptancePage() {
         return
       }
 
+      // Set user in localStorage for session
+      const user = {
+        id: signupData.user?.id || Date.now().toString(),
+        email: userData.email,
+        name: `${userData.firstName} ${userData.lastName}`,
+        role: "clinic_member", // Invited users get clinic_member role
+      }
+      localStorage.setItem("cavity_user", JSON.stringify(user))
+
       // Clear pending signup data
       sessionStorage.removeItem("pending_signup")
 

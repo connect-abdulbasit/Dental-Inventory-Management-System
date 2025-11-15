@@ -29,7 +29,7 @@ interface User {
   id: string
   email: string
   name: string
-  role: "admin" | "dentist" | "member"
+  role: "clinic_admin" | "clinic_member" | "supplier"
   status: "active" | "pending" | "inactive"
   createdAt: string
   lastLogin: string | null
@@ -147,12 +147,12 @@ export function UserManagement() {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case "admin":
+      case "clinic_admin":
         return "bg-red-100 text-red-800"
-      case "dentist":
-        return "bg-blue-100 text-blue-800"
-      case "member":
+      case "clinic_member":
         return "bg-green-100 text-green-800"
+      case "supplier":
+        return "bg-purple-100 text-purple-800"
       default:
         return "bg-gray-100 text-gray-800"
     }
@@ -326,7 +326,9 @@ export function UserManagement() {
                       </TableCell>
                       <TableCell>
                         <Badge className={`${getRoleBadgeColor(user.role)} border-0`}>
-                          {user.role}
+                          {user.role === "clinic_admin" ? "Clinic Admin" : 
+                           user.role === "clinic_member" ? "Clinic Member" : 
+                           user.role === "supplier" ? "Supplier" : user.role}
                         </Badge>
                       </TableCell>
                       <TableCell>

@@ -1,16 +1,31 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Shield, Users, Calendar, Package, BarChart3, CheckCircle, Star, Zap } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth"
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false)
+  const router = useRouter()
+  const { user, isLoading } = useAuth()
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
+
+  // Redirect logged-in users to their appropriate dashboard
+  useEffect(() => {
+    if (!isLoading && user) {
+      if (user.role === "supplier") {
+        router.push("/supplier/dashboard")
+      } else {
+        router.push("/dashboard")
+      }
+    }
+  }, [user, isLoading, router])
 
   const features = [
     {

@@ -14,9 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, Package, Calendar, ShoppingCart, LogOut, Menu, X, Settings, ChevronDown, ClipboardList } from "lucide-react"
+import { LayoutDashboard, Package, Calendar, ShoppingCart, LogOut, Menu, X, Settings, ChevronDown, ClipboardList, Store } from "lucide-react"
 
-const navigation = [
+const clinicNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Inventory", href: "/inventory", icon: Package },
   { name: "Appointments", href: "/appointments", icon: Calendar },
@@ -24,10 +24,20 @@ const navigation = [
   { name: "Orders", href: "/orders", icon: ShoppingCart },
 ]
 
+const supplierNavigation = [
+  { name: "Dashboard", href: "/supplier/dashboard", icon: LayoutDashboard },
+  { name: "Products", href: "/supplier/products", icon: Package },
+  { name: "Orders", href: "/supplier/orders", icon: ShoppingCart },
+]
+
 export function Navbar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  
+  // Determine navigation based on user role
+  const isSupplier = user?.role === "supplier"
+  const navigation = isSupplier ? supplierNavigation : clinicNavigation
 
   const handleLogout = async () => {
     await logout()
@@ -47,11 +57,15 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-3">
+            <Link href={isSupplier ? "/supplier/dashboard" : "/dashboard"} className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-blue-600 font-bold text-lg">D</span>
+                {isSupplier ? (
+                  <Store className="w-6 h-6 text-blue-600" />
+                ) : (
+                  <span className="text-blue-600 font-bold text-lg">D</span>
+                )}
               </div>
-              <span className="text-2xl font-bold text-white">Dentura</span>
+              <span className="text-2xl font-bold text-white">{isSupplier ? "Supplier Portal" : "Dentura"}</span>
             </Link>
           </div>
 
@@ -93,8 +107,14 @@ export function Navbar() {
                     </Avatar>
                     <div className="flex flex-col items-start">
                       <span className="text-sm font-medium text-white">{user.name}</span>
-                      {user.role === "admin" && (
-                        <span className="text-xs text-blue-100">Administrator</span>
+                      {user.role === "clinic_admin" && (
+                        <span className="text-xs text-blue-100">Clinic Administrator</span>
+                      )}
+                      {user.role === "clinic_member" && (
+                        <span className="text-xs text-blue-100">Clinic Member</span>
+                      )}
+                      {user.role === "supplier" && (
+                        <span className="text-xs text-blue-100">Supplier</span>
                       )}
                     </div>
                     <ChevronDown className="h-4 w-4 text-white/80" />
@@ -108,7 +128,7 @@ export function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {user.role === "admin" && (
+                  {user.role === "clinic_admin" && (
                     <>
                       <DropdownMenuItem asChild>
                         <Link href="/admin" className="cursor-pointer w-full">
@@ -159,8 +179,14 @@ export function Navbar() {
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-white">{user.name}</span>
                     <span className="text-xs text-blue-100">{user.email}</span>
-                    {user.role === "admin" && (
-                      <span className="text-xs text-yellow-300 font-semibold mt-1">Administrator</span>
+                    {user.role === "clinic_admin" && (
+                      <span className="text-xs text-yellow-300 font-semibold mt-1">Clinic Administrator</span>
+                    )}
+                    {user.role === "clinic_member" && (
+                      <span className="text-xs text-yellow-300 font-semibold mt-1">Clinic Member</span>
+                    )}
+                    {user.role === "supplier" && (
+                      <span className="text-xs text-yellow-300 font-semibold mt-1">Supplier</span>
                     )}
                   </div>
                 </div>
@@ -185,7 +211,7 @@ export function Navbar() {
             })}
             {user && (
               <>
-                {user.role === "admin" && (
+                {user.role === "clinic_admin" && (
                   <Link
                     href="/admin"
                     className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:text-white hover:bg-white/10 transition-colors"

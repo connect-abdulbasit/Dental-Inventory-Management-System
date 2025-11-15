@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth"
 import { PageHeader } from "@/components/page-header"
 import { OverviewCards } from "@/components/dashboard/overview-cards"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
@@ -41,9 +43,18 @@ interface Appointment {
 }
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const { user, isLoading: authLoading } = useAuth()
   const [data, setData] = useState<DashboardData | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  // Redirect suppliers to supplier dashboard
+  useEffect(() => {
+    if (!authLoading && user?.role === "supplier") {
+      router.push("/supplier/dashboard")
+    }
+  }, [user, authLoading, router])
 
   const fetchDashboardData = async () => {
     try {
@@ -65,6 +76,15 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchDashboardData()
   }, [])
+
+  // Don't render clinic dashboard for suppliers
+  if (authLoading || user?.role === "supplier") {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
