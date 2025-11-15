@@ -8,9 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   UserPlus, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
   Search, 
   Filter,
   Download,
@@ -21,7 +18,11 @@ import {
   Clock
 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/hooks/use-toast"
 import { InviteUserModal } from "./invite-user-modal"
 import { EditUserModal } from "./edit-user-modal"
 
@@ -45,6 +46,11 @@ export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [changingRole, setChangingRole] = useState<string | null>(null)
+  const [roleChangeModalOpen, setRoleChangeModalOpen] = useState(false)
+  const [selectedUserForRoleChange, setSelectedUserForRoleChange] = useState<User | null>(null)
+  const [newRole, setNewRole] = useState<"clinic_admin" | "clinic_member">("clinic_member")
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchUsers()
@@ -145,6 +151,51 @@ export function UserManagement() {
     }
   }
 
+  const handleOpenRoleChangeModal = (user: User) => {
+    setSelectedUserForRoleChange(user)
+    // Only allow clinic_admin or clinic_member, default to clinic_member if user has supplier role
+    setNewRole(user.role === "clinic_admin" ? "clinic_admin" : "clinic_member")
+    setRoleChangeModalOpen(true)
+  }
+
+  const handleChangeRole = async () => {
+    if (!selectedUserForRoleChange) return
+
+    setChangingRole(selectedUserForRoleChange.id)
+    try {
+      const response = await fetch(`/api/users/${selectedUserForRoleChange.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: selectedUserForRoleChange.name,
+          role: newRole,
+          status: selectedUserForRoleChange.status,
+        }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: `User role changed to ${newRole === "clinic_admin" ? "Clinic Admin" : "Clinic Member"}`,
+        })
+        await fetchUsers()
+        setRoleChangeModalOpen(false)
+        setSelectedUserForRoleChange(null)
+      } else {
+        throw new Error(data.error || "Failed to change role")
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change user role",
+        variant: "destructive",
+      })
+    } finally {
+      setChangingRole(null)
+    }
+  }
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "clinic_admin":
@@ -173,14 +224,94 @@ export function UserManagement() {
 
   if (loading) {
     return (
-      <Card className="border-0 shadow-sm">
-        <CardContent className="flex items-center justify-center py-12">
-          <div className="flex flex-col items-center gap-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="text-gray-600">Loading users...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-10 h-10 rounded-lg" />
+                <div>
+                  <Skeleton className="h-6 w-48 mb-2" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-32" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Skeleton className="h-10 flex-1" />
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-[140px]" />
+                <Skeleton className="h-10 w-[140px]" />
+              </div>
+            </div>
+
+            {/* Results Summary */}
+            <Skeleton className="h-5 w-48" />
+
+            {/* Users Table */}
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50/50">
+                    <TableHead className="font-semibold">User</TableHead>
+                    <TableHead className="font-semibold">Contact</TableHead>
+                    <TableHead className="font-semibold">Role</TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
+                    <TableHead className="font-semibold">Created</TableHead>
+                    <TableHead className="font-semibold">Last Login</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-8 h-8 rounded-full" />
+                          <div>
+                            <Skeleton className="h-5 w-32 mb-1" />
+                            <Skeleton className="h-4 w-24" />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-4 h-4" />
+                          <Skeleton className="h-4 w-40" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-24 rounded-full" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-4 h-4" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-4 h-4" />
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
@@ -236,9 +367,8 @@ export function UserManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="dentist">Dentist</SelectItem>
-                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="clinic_admin">Admin</SelectItem>
+                  <SelectItem value="clinic_member">Member</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -286,13 +416,12 @@ export function UserManagement() {
                   <TableHead className="font-semibold">Status</TableHead>
                   <TableHead className="font-semibold">Created</TableHead>
                   <TableHead className="font-semibold">Last Login</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12">
+                    <TableCell colSpan={6} className="text-center py-12">
                       <div className="flex flex-col items-center gap-2">
                         <Users className="w-8 h-8 text-gray-400" />
                         <p className="text-gray-600">No users found</p>
@@ -325,11 +454,23 @@ export function UserManagement() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getRoleBadgeColor(user.role)} border-0`}>
-                          {user.role === "clinic_admin" ? "Clinic Admin" : 
-                           user.role === "clinic_member" ? "Clinic Member" : 
-                           user.role === "supplier" ? "Supplier" : user.role}
-                        </Badge>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleOpenRoleChangeModal(user)
+                          }}
+                          className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-md transition-all hover:scale-105"
+                          title="Click to change role"
+                        >
+                          <Badge 
+                            className={`${getRoleBadgeColor(user.role)} border-0 cursor-pointer hover:opacity-80 transition-opacity`}
+                          >
+                            {user.role === "clinic_admin" ? "Clinic Admin" : 
+                             user.role === "clinic_member" ? "Clinic Member" : 
+                             user.role === "supplier" ? "Supplier" : user.role}
+                          </Badge>
+                        </button>
                       </TableCell>
                       <TableCell>
                         <Badge className={`${getStatusBadgeColor(user.status)} border-0`}>
@@ -348,34 +489,6 @@ export function UserManagement() {
                           <span className="text-sm">{user.lastLogin || "Never"}</span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedUser(user)
-                                setEditModalOpen(true)
-                              }}
-                              className="cursor-pointer"
-                            >
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit User
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDeleteUser(user.id)} 
-                              className="text-red-600 cursor-pointer focus:text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete User
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -388,6 +501,62 @@ export function UserManagement() {
       <InviteUserModal open={inviteModalOpen} onOpenChange={setInviteModalOpen} onInvite={handleInviteUser} />
 
       <EditUserModal open={editModalOpen} onOpenChange={setEditModalOpen} user={selectedUser} onSave={handleEditUser} />
+
+      {/* Change Role Dialog */}
+      <Dialog open={roleChangeModalOpen} onOpenChange={setRoleChangeModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Change User Role</DialogTitle>
+            <DialogDescription>
+              Change the role for {selectedUserForRoleChange?.name} ({selectedUserForRoleChange?.email})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-3">
+              <Label className="text-base font-medium">Select Role</Label>
+              <RadioGroup value={newRole} onValueChange={(value) => setNewRole(value as "clinic_admin" | "clinic_member")}>
+              <div className="flex items-center space-x-2 p-3 rounded-md border hover:bg-gray-50 cursor-pointer">
+                  <RadioGroupItem value="clinic_admin" id="clinic_admin" />
+                  <Label htmlFor="clinic_admin" className="cursor-pointer flex-1">
+                    <div>
+                      <div className="font-medium">Clinic Admin</div>
+                      <div className="text-sm text-gray-500">Administrator with full access</div>
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-md border hover:bg-gray-50 cursor-pointer">
+                  <RadioGroupItem value="clinic_member" id="clinic_member" />
+                  <Label htmlFor="clinic_member" className="cursor-pointer flex-1">
+                    <div>
+                      <div className="font-medium">Clinic Member</div>
+                      <div className="text-sm text-gray-500">Standard clinic staff member</div>
+                    </div>
+                  </Label>
+                </div>
+               
+              </RadioGroup>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRoleChangeModalOpen(false)
+                setSelectedUserForRoleChange(null)
+              }}
+              disabled={changingRole !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleChangeRole}
+              disabled={changingRole !== null || newRole === selectedUserForRoleChange?.role}
+            >
+              {changingRole ? "Changing..." : "Change Role"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
