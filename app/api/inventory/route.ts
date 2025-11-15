@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 
 // In-memory storage for demo purposes (in production, this would be in a database)
-let inventoryData = [
+export let inventoryData = [
     {
       id: 1,
       name: "Dental Floss",
@@ -11,6 +11,7 @@ let inventoryData = [
       category: "Hygiene",
       supplier: "DentalCorp",
       lastUpdated: "2024-01-15",
+      orderAmount: 50,
     },
     {
       id: 2,
@@ -21,6 +22,7 @@ let inventoryData = [
       category: "Safety",
       supplier: "MedSupply Inc",
       lastUpdated: "2024-01-14",
+      orderAmount: 100,
     },
     {
       id: 3,
@@ -31,6 +33,7 @@ let inventoryData = [
       category: "Medication",
       supplier: "PharmaDental",
       lastUpdated: "2024-01-13",
+      orderAmount: 50,
     },
     {
       id: 4,
@@ -41,6 +44,7 @@ let inventoryData = [
       category: "Materials",
       supplier: "DentalCorp",
       lastUpdated: "2024-01-12",
+      orderAmount: 30,
     },
     {
       id: 5,
@@ -51,6 +55,7 @@ let inventoryData = [
       category: "Imaging",
       supplier: "RadiologyPlus",
       lastUpdated: "2024-01-11",
+      orderAmount: 50,
     },
     {
       id: 6,
@@ -61,6 +66,7 @@ let inventoryData = [
       category: "Instruments",
       supplier: "InstrumentCo",
       lastUpdated: "2024-01-10",
+      orderAmount: 20,
     },
     {
       id: 7,
@@ -71,6 +77,7 @@ let inventoryData = [
       category: "Disposables",
       supplier: "DentalCorp",
       lastUpdated: "2024-01-09",
+      orderAmount: 200,
     },
     {
       id: 8,
@@ -81,6 +88,7 @@ let inventoryData = [
       category: "Treatment",
       supplier: "PharmaDental",
       lastUpdated: "2024-01-08",
+      orderAmount: 30,
     },
   ]
 
