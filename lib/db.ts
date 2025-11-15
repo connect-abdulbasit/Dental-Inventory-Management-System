@@ -1,9 +1,17 @@
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
+import { Client, QueryResultRow } from "pg";
 
-const client = postgres(process.env.DATABASE_URL!, {
-  ssl: 'require',
-  prepare: false,
-})
+export async function query<T extends QueryResultRow = any>(sql: string, params: any[] = []): Promise<{ rows: T[] }> {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  });
 
-export const db = drizzle(client)
+  await client.connect();
+
+  try {
+    const result = await client.query<T>(sql, params);
+    return result;
+  } finally {
+    await client.end();
+  }
+}
