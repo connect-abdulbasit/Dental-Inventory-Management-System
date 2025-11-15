@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/page-header"
 import { OverviewCards } from "@/components/dashboard/overview-cards"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
-import { LowStockAlerts } from "@/components/dashboard/low-stock-alerts"
+import { PastAppointments } from "@/components/dashboard/past-appointments"
 
 interface DashboardData {
   totalProducts: number
@@ -26,23 +26,43 @@ interface DashboardData {
   }>
 }
 
+interface Appointment {
+  id: number
+  patientName: string
+  patientEmail: string
+  patientPhone: string
+  date: string
+  time: string
+  duration: number
+  type: string
+  procedureName?: string
+  status: string
+  notes: string
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch("/api/dashboard")
-        const dashboardData = await response.json()
-        setData(dashboardData)
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error)
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchDashboardData = async () => {
+    try {
+      const [dashboardResponse, appointmentsResponse] = await Promise.all([
+        fetch("/api/dashboard"),
+        fetch("/api/appointments"),
+      ])
+      const dashboardData = await dashboardResponse.json()
+      const appointmentsData = await appointmentsResponse.json()
+      setData(dashboardData)
+      setAppointments(appointmentsData)
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error)
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchDashboardData()
   }, [])
 
@@ -75,8 +95,13 @@ export default function DashboardPage() {
       <OverviewCards data={data} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentActivity activities={data.recentActivity} />
-        <LowStockAlerts items={data.lowStockItems} />
+        <div>
+          <RecentActivity activities={data.recentActivity} />
+        </div>
+        <div>
+
+          <PastAppointments appointments={appointments} onUpdate={fetchDashboardData} />
+        </div>
       </div>
     </div>
   )
